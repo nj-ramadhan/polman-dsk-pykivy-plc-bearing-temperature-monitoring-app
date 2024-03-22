@@ -1,2 +1,2 @@
-# resistivity_meter_app
- Embedded system application for Resistivity Meter
+# bearing temperature monitoring application
+ PC Desktop application for Bearing Temperature Monitoring
