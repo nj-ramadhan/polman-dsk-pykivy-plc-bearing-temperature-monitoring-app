@@ -1,56 +1,59 @@
 #:kivy 2.1.0
 
 <ScreenSplash>:
-    BoxLayout:
+    MDBoxLayout:
         orientation: 'vertical'
-        padding: 5 , 5
-        Label:
-            text: 'Automatic Multichannel Resistivity MG-AT'
+        padding: 100
+        MDLabel:
+            text: 'BEARING TEMPERATURE MONITORING'
             halign: 'center'
             valign: 'middle'
-            font_size: 40
-            padding: 10 , 10
+            font_style: 'H3'
             bold: True
+            theme_text_color: 'Primary'
             size_hint_y: 0.2
-            color: 0, 0, 0
 
-        Image:
-            id: logo
-            source:'asset/logo_labtek.png'
-            padding: 20
-            spacing: 20
-            size_hint_y: 0.2
-            allow_stretch: True
+        MDBoxLayout:
+            orientation: 'horizontal'
+            halign: 'center'
+            valign: 'middle'
+            padding: 40
+            spacing: 100
+            size_hint_y: 0.4
+            
+            Image:
+                id: logo_kai
+                source:'asset/logo_kai.png'
+                size_hint_y: 0.6
+                allow_stretch: True
 
-        Label:
-            text: ''
-            size_hint_y: 0.05
+            Image:
+                id: logo_polman
+                source:'asset/logo_polman.png'
+                size_hint_y: 0.6
+                allow_stretch: True
 
         MDProgressBar:
             id: progress_bar
-            padding: 20
-            spacing: 200
-            size_hint_y: .02
+            padding: 100
             max: 100
             value: 1
+            size_hint_y: 0.04
 
-        Label:
+        MDLabel:
             id: progress_bar_label
             text: 'Loading.. [0 %]'
             halign: 'center'
             valign: 'middle'
-            font_size: 50
-            padding: 2 , 2
+            font_style: 'H4'
+            theme_text_color: 'Primary'
             bold: 'true'
-            size_hint_y: .1
-            color: 0, 0, 0
+            size_hint_y: 0.1
 
-        Label:
-            text: 'Developed by Labtek Copyrights @2022'
+        MDLabel:
+            text: 'Developed by Polman Bandung Copyrights @2024'
             halign: 'center'
             valign: 'middle'
-            font_size: 30
-            padding: 2 , 2
-            bold: 'true'
-            size_hint_y: .1
-            color: 0, 0, 0
+            font_style: 'H5'
+            theme_text_color: 'Primary'
+            size_hint_y: 0.1

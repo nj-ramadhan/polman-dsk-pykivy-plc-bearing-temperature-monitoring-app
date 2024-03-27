@@ -1,0 +1,108 @@
+#:kivy 2.1.0
+
+<ScreenDashboard>:
+    MDBoxLayout: #main screen
+        orientation: "vertical"
+
+        MDBoxLayout: #header layout
+            id: header_layout
+            orientation: "horizontal"
+			halign: 'center'
+			padding: 20
+            size_hint_y: 0.1
+
+			MDFillRoundFlatIconButton: #shutdown button
+				id: bt_shutdown
+				icon: 'power'
+				text: ' '
+				md_bg_color: '#A50000'
+				font_size: 40
+				on_press: root.exec_shutdown()
+				size_hint_x: 0.1
+
+			MDLabel: #title label
+				id: title            
+				text: "BEARING TEMPERATURE MONITORING"
+				halign: 'center'
+				font_style: 'H5'
+				theme_text_color: 'Primary'
+				bold: True
+				size_hint_x: 0.7
+                    
+            Image: #icon logo 1
+                id: logo_kai
+                source:'asset/logo_kai.png'
+                allow_stretch: True
+				size_hint_x: 0.1
+
+            Image: #icon logo 2
+                id: logo_polman
+                source:'asset/logo_polman.png'
+                allow_stretch: True           
+				size_hint_x: 0.1   
+		
+		MDRelativeLayout: #graph layout
+			padding: 20
+			size_hint_y: 0.7
+			Image:
+				id: background_image
+                source:'asset/kereta_kiri.jpg'
+                allow_stretch: True 
+				size_hint_y: 0.95
+				pos_hint: {'center_x': 0.5,'center_y': 0.5}
+
+			MDRelativeLayout: 
+				id: layout_text_temps
+				pos_hint: {'center_x': 1,'center_y': 0.5}
+
+		MDBoxLayout: #interfacing layout
+			orientation: "horizontal"
+			padding: 20, 0
+			spacing: 20
+			size_hint_y: 0.1
+
+			MDFillRoundFlatIconButton:
+				id: bt_reset_data
+				icon: 'arrow-left'
+				text: "TRAIN MOVE LEFT"
+				font_style: 'Button'
+				size_hint_x: 0.4
+				on_press: root.move_left()
+
+			MDFillRoundFlatIconButton:
+				id: bt_save_data
+				icon: "arrow-right"
+				text: "TRAIN MOVERIGHT"
+				font_style: 'Button'
+				size_hint_x: 0.4
+				on_press: root.move_right()
+
+		MDBoxLayout: #navigation layout
+			orientation: "horizontal"
+			padding: 20
+			spacing: 20
+			size_hint_y: 0.1
+
+			MDFillRoundFlatIconButton:
+				id: bt_screen_standby
+				icon: 'timer-sand'
+				text: "STANDBY"
+				font_style: 'Button'
+				size_hint_x: 0.25
+				on_press: root.screen_standby()
+
+			MDFillRoundFlatIconButton:
+				id: bt_screen_dashboard
+				icon: "view-dashboard"
+				text: "DASHBOARD"
+				font_style: 'Button'
+				size_hint_x: 0.25
+				on_press: root.screen_dashboard()
+
+			MDFillRoundFlatIconButton:
+				id: bt_screen_data
+				icon: "pencil"
+				text: "DATA"
+				font_style: 'Button'
+				size_hint_x: 0.25
+				on_press: root.screen_data()
