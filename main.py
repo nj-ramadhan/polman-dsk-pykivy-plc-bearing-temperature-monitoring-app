@@ -355,43 +355,12 @@ class ScreenDashboard(MDBoxLayout):
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            # for i in range(1,12,2):
-            #     field = MDLabel(id=f'T_{i}', 
-            #                     text=f'{i}',
-            #                     pos_hint= {'center_x': 0.230 + (0.012*i),'center_y': 0.790}
-            #                     # pos_hint= {'center_x': field_pos_norm[i-1][0],'center_y': field_pos_norm[i-1][1]}
-            #     )
-            #     self.ids.layout_text_temps.add_widget(field)
-            # for i in range(2,13,2):
-            #     field = MDLabel(id=f'T_{i}', 
-            #                     text=f'{i}',
-            #                     pos_hint= {'center_x': 0.218 + (0.012*i),'center_y': 0.990}
-            #                     # pos_hint= {'center_x': field_pos_norm[i-1][0],'center_y': field_pos_norm[i-1][1]}
-            #     )
-            #     self.ids.layout_text_temps.add_widget(field)
-
-            # for i in range(13,20,2):
-            #     field = MDLabel(id=f'T_{i}', 
-            #                     text=f'{i}',
-            #                     pos_hint= {'center_x': 0.290 + (0.012*i),'center_y': 0.790}
-            #                     # pos_hint= {'center_x': field_pos_norm[i-1][0],'center_y': field_pos_norm[i-1][1]}
-            #     )
-            #     self.ids.layout_text_temps.add_widget(field)
-            # for i in range(14,21,2):
-            #     field = MDLabel(id=f'T_{i}', 
-            #                     text=f'{i}',
-            #                     pos_hint= {'center_x': 0.288 + (0.012*i),'center_y': 0.990}
-            #                     # pos_hint= {'center_x': field_pos_norm[i-1][0],'center_y': field_pos_norm[i-1][1]}
-            #     )
-            #     self.ids.layout_text_temps.add_widget(field)
-
             for i in range(1,29):
                 field = MDLabel(id=f'T_{i}', 
                                 text=f'{i}',
-                                # color= '#EE2222',
+                                theme_text_color= 'Primary',
                                 pos_hint= {'center_x': (field_pos[i-1][0]),'center_y': (field_pos[i-1][1])}
                 )
-                print(field_pos[i-1])
                 self.ids.layout_text_temps.add_widget(field)
 
         except Exception as e:
@@ -402,26 +371,19 @@ class ScreenDashboard(MDBoxLayout):
         global field_pos
         self.ids.background_image.source = 'asset/kereta_kanan.jpg'
 
-        # try:
-        #     
-        #     self.ids.layout_text_temps.clear_widgets()
-        #     for i in range(1,6):
-        #         field = MDLabel(id=f'label_{i}', 
-        #                         text=f'label_{i}',
-        #                         size_hint_min_x= 20,
-        #                         # pos_hint= {'center_x': (0.02*i),'center_y': (0.01*i)}
-        #                         pos_hint= {'center_x': (field_pos[i-1][0]),'center_y': (field_pos[i-1][1])}
-        #         )
+        try:
+            self.ids.layout_text_temps.clear_widgets()
+            for i in range(1,29):
+                field = MDLabel(id=f'T_{i}', 
+                                text=f'{i}',
+                                theme_text_color= 'Error',
+                                pos_hint= {'center_x': (field_pos[i-1][0]),'center_y': (field_pos[i-1][1])}
+                )
+                self.ids.layout_text_temps.add_widget(field)
 
-        #         print("move right")
-        #         print(f"'center_x': {field_pos[i-1][0]},'center_y': {field_pos[i-1][1]}")
-        #         print(f"'center_x': {(0.01*i)},'center_y': {(0.05*i)}")
-
-        #         self.ids.layout_text_temps.add_widget(field)
-                
-        # except Exception as e:
-        #     print("An exception occurred:", e)
-        #     toast('error open screen')
+        except Exception as e:
+            print("An exception occurred:", e)
+            toast('error open screen')
 
     def screen_standby(self):
         self.screen_manager.current = 'screen_standby'
