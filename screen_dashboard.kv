@@ -55,48 +55,48 @@
 				id: layout_text_temps
 				pos_hint: {'center_x': 1,'center_y': 0.5}
 
-		MDBoxLayout: #interfacing layout
-			orientation: "horizontal"
-			padding: 20, 0
-			spacing: 20
-			size_hint_y: 0.1
+		# MDBoxLayout: #interfacing layout
+		# 	orientation: "horizontal"
+		# 	padding: 20, 0
+		# 	spacing: 20
+		# 	size_hint_y: 0.1
 
-			MDFillRoundFlatIconButton:
-				id: bt_reset_data
-				icon: 'arrow-left'
-				text: "TRAIN MOVE LEFT"
-				font_style: 'Button'
-				size_hint_x: 0.4
-				on_press: root.move_left()
+		# 	MDFillRoundFlatIconButton:
+		# 		id: bt_reset_data
+		# 		icon: 'arrow-left'
+		# 		text: "TRAIN MOVE LEFT"
+		# 		font_style: 'Button'
+		# 		size_hint_x: 0.4
+		# 		on_press: root.move_left()
 
-			MDFillRoundFlatIconButton:
-				id: bt_save_data
-				icon: "arrow-right"
-				text: "TRAIN MOVERIGHT"
-				font_style: 'Button'
-				size_hint_x: 0.4
-				on_press: root.move_right()
+		# 	MDFillRoundFlatIconButton:
+		# 		id: bt_save_data
+		# 		icon: "arrow-right"
+		# 		text: "TRAIN MOVERIGHT"
+		# 		font_style: 'Button'
+		# 		size_hint_x: 0.4
+		# 		on_press: root.move_right()
 
 		MDBoxLayout: #navigation layout
 			orientation: "horizontal"
 			padding: 20
 			spacing: 20
-			size_hint_y: 0.1
+			size_hint_y: 0.2
 
-			MDFillRoundFlatIconButton:
-				id: bt_screen_standby
-				icon: 'timer-sand'
-				text: "STANDBY"
-				font_style: 'Button'
-				size_hint_x: 0.25
-				on_press: root.screen_standby()
+			# MDFillRoundFlatIconButton:
+			# 	id: bt_screen_standby
+			# 	icon: 'timer-sand'
+			# 	text: "STANDBY"
+			# 	font_style: 'Button'
+			# 	size_hint_x: 0.25
+			# 	on_press: root.screen_standby()
 
 			MDFillRoundFlatIconButton:
 				id: bt_screen_dashboard
 				icon: "view-dashboard"
 				text: "DASHBOARD"
 				font_style: 'Button'
-				size_hint_x: 0.25
+				size_hint_x: 0.5
 				on_press: root.screen_dashboard()
 
 			MDFillRoundFlatIconButton:
@@ -104,5 +104,5 @@
 				icon: "pencil"
 				text: "DATA"
 				font_style: 'Button'
-				size_hint_x: 0.25
+				size_hint_x: 0.5
 				on_press: root.screen_data()

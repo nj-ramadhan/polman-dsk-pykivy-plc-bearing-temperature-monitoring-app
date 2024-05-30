@@ -62,43 +62,132 @@ colors = {
     },
 }
 
-field_pos = [
-    [0.242,0.790],[0.242,0.990],
+field_pos_left = [
+    [0.242,0.790],[0.242,0.990], #lokomotif
     [0.262,0.790],[0.262,0.990],
     [0.290,0.790],[0.290,0.990],
     [0.310,0.790],[0.310,0.990],
     [0.338,0.790],[0.338,0.990],
     [0.358,0.790],[0.358,0.990],
 
-    [0.438,0.790],[0.438,0.990],
-    [0.458,0.790],[0.458,0.990],
-    [0.532,0.790],[0.532,0.990],
-    [0.552,0.790],[0.552,0.990],
+    [0.440,0.790],[0.440,0.990], #gerbong 1
+    [0.460,0.790],[0.460,0.990],
+    [0.534,0.790],[0.534,0.990],
+    [0.554,0.790],[0.554,0.990],
 
-    [0.648,0.790],[0.648,0.990],
-    [0.668,0.790],[0.668,0.990],
-    [0.742,0.790],[0.742,0.990],
-    [0.762,0.790],[0.762,0.990],
-    # [515,290],[515,600],
-    # [630,290],[630,600],
-    # [715,290],[715,600],
-    # [1060,290],[1060,600],
-    # [1150,290],[1150,600],
-    # [1460,290],[1460,600],
-    # [1550,290],[1550,600],
-    # [1955,290],[1955,600],
-    # [2045,290],[2045,600],
-    # [2355,290],[2355,600],
-    # [2445,290],[2445,600],
+    [0.650,0.790],[0.650,0.990], #gerbong 2
+    [0.670,0.790],[0.670,0.990],
+    [0.744,0.790],[0.744,0.990],
+    [0.764,0.790],[0.764,0.990],
 
-    # [165,730],[255,730],[565,730],[655,730],[1060,730],[1150,730],[1460,730],[1550,730],[1955,730],[2045,730],[2355,730],[2445,730],
-    # [165,1040],[255,1040],[565,1040],[655,1040],[1060,1040],[1150,1040],[1460,1040],[1550,1040],[1955,1040],[2045,1040],[2355,1040],[2445,1040],
+    [0.229,0.530],[0.229,0.730], #gerbong 3
+    [0.251,0.530],[0.251,0.730],
+    [0.324,0.530],[0.324,0.730],
+    [0.346,0.530],[0.346,0.730],
 
-    # [165,1170],[255,1170],[565,1170],[655,1170],[1060,1170],[1150,1170],[1460,1170],[1550,1170],[1955,1170],[2045,1170],[2355,1170],[2445,1170],
-    # [165,1480],[255,1480],[565,1480],[655,1480],[1060,1480],[1150,1480],[1460,1480],[1550,1480],[1955,1480],[2045,1480],[2355,1480],[2445,1480],
+    [0.439,0.530],[0.439,0.730], #gerbong 4
+    [0.461,0.530],[0.461,0.730],
+    [0.534,0.530],[0.534,0.730],
+    [0.556,0.530],[0.556,0.730],
 
-    # [165,1610],[255,1610],[565,1610],[655,1610],[1060,1610],[1150,1610],[1460,1610],[1550,1610],[1955,1610],[2045,1610],[2355,1610],[2445,1610],
-    # [165,1920],[255,1920],[565,1920],[655,1920],[1060,1920],[1150,1920],[1460,1920],[1550,1920],[1955,1920],[2045,1920],[2355,1920],[2445,1920]
+    [0.650,0.530],[0.650,0.730], #gerbong 5
+    [0.670,0.530],[0.670,0.730],
+    [0.744,0.530],[0.744,0.730],
+    [0.764,0.530],[0.764,0.730],
+
+    [0.229,0.270],[0.229,0.470], #gerbong 6
+    [0.251,0.270],[0.251,0.470],
+    [0.324,0.270],[0.324,0.470],
+    [0.346,0.270],[0.346,0.470],
+
+    [0.439,0.270],[0.439,0.470], #gerbong 7
+    [0.461,0.270],[0.461,0.470],
+    [0.534,0.270],[0.534,0.470],
+    [0.556,0.270],[0.556,0.470],
+
+    [0.650,0.270],[0.650,0.470], #gerbong 8
+    [0.670,0.270],[0.670,0.470],
+    [0.744,0.270],[0.744,0.470],
+    [0.764,0.270],[0.764,0.470],
+
+    [0.229,0.010],[0.229,0.205], #gerbong 9
+    [0.251,0.010],[0.251,0.205],
+    [0.324,0.010],[0.324,0.205],
+    [0.346,0.010],[0.346,0.205],
+
+    [0.439,0.010],[0.439,0.205], #gerbong 10
+    [0.461,0.010],[0.461,0.205],
+    [0.534,0.010],[0.534,0.205],
+    [0.556,0.010],[0.556,0.206],
+
+    [0.650,0.010],[0.650,0.205], #gerbong 11
+    [0.670,0.010],[0.670,0.205],
+    [0.744,0.010],[0.744,0.205],
+    [0.764,0.010],[0.764,0.205],
+]
+
+field_pos_right = [
+    [0.750,0.990],[0.750,0.790], #lokomotif
+    [0.730,0.990],[0.730,0.790],
+    [0.700,0.990],[0.700,0.790],
+    [0.680,0.990],[0.680,0.790],
+    [0.650,0.990],[0.650,0.790],
+    [0.630,0.990],[0.630,0.790],
+
+    [0.552,0.990],[0.552,0.790], #gerbong 1
+    [0.530,0.990],[0.530,0.790],
+    [0.455,0.990],[0.455,0.790],
+    [0.433,0.990],[0.433,0.790],
+
+    [0.340,0.990],[0.340,0.790], #gerbong 2
+    [0.318,0.990],[0.318,0.790],
+    [0.245,0.990],[0.245,0.790],
+    [0.223,0.990],[0.223,0.790],
+
+    [0.762,0.730],[0.762,0.530], #gerbong 3
+    [0.740,0.730],[0.740,0.530],
+    [0.667,0.730],[0.667,0.530],
+    [0.645,0.730],[0.645,0.530],
+
+    [0.552,0.730],[0.552,0.530], #gerbong 4
+    [0.530,0.730],[0.530,0.530],
+    [0.455,0.730],[0.455,0.530],
+    [0.433,0.730],[0.433,0.530],
+
+    [0.340,0.730],[0.340,0.530], #gerbong 5
+    [0.318,0.730],[0.318,0.530],
+    [0.245,0.730],[0.245,0.530],
+    [0.223,0.730],[0.223,0.530],
+
+    [0.762,0.470],[0.762,0.270], #gerbong 6
+    [0.740,0.470],[0.740,0.270],
+    [0.667,0.470],[0.667,0.270],
+    [0.645,0.470],[0.645,0.270],
+
+    [0.552,0.470],[0.552,0.270], #gerbong 7
+    [0.530,0.470],[0.530,0.270],
+    [0.455,0.470],[0.455,0.270],
+    [0.433,0.470],[0.433,0.270],
+
+    [0.340,0.470],[0.340,0.270], #gerbong 8
+    [0.318,0.470],[0.318,0.270],
+    [0.245,0.470],[0.245,0.270],
+    [0.223,0.470],[0.223,0.270],
+
+    [0.762,0.205],[0.762,0.010], #gerbong 9
+    [0.740,0.205],[0.740,0.010],
+    [0.667,0.205],[0.667,0.010],
+    [0.645,0.205],[0.645,0.010],
+
+    [0.552,0.205],[0.552,0.010], #gerbong 10
+    [0.530,0.205],[0.530,0.010],
+    [0.455,0.205],[0.455,0.010],
+    [0.433,0.205],[0.433,0.010],
+
+    [0.340,0.205],[0.340,0.010], #gerbong 11
+    [0.318,0.205],[0.318,0.010],
+    [0.245,0.205],[0.245,0.010],
+    [0.223,0.205],[0.223,0.010],
 ]
 
 DEBUG = False
@@ -109,7 +198,7 @@ TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
 BEARING_TEMP_DATA = 100
 NUMBER_OF_BEARINGS = 100
 
-BEARING_TEMP_MIN = 60.5
+BEARING_TEMP_MIN = 10.5
 
 # Define constants for PLC connection and database read
 PLC_IP = '192.168.0.2'
@@ -120,16 +209,25 @@ OFFSET1 = 8
 OFFSET2 = 404
 BYTES_TO_READ1 = 1278
 BYTES_TO_READ2 = 1278
-SLEEP_DURATION = 0.1  # seconds
+SLEEP_DURATION_DATA = 0.1  # seconds
+SLEEP_DURATION_DISPLAY = 0.3
 
 varA = np.zeros(100)
 varB = np.zeros(100)
 
 db_bearing_temps = np.zeros([100, 100])
 arr_bearing_temps = np.zeros(100)
+arr_calc_bearing_temps = np.zeros(200)
 calc_bearing_temps = 0.0
 dir_left = False
 dir_right = False
+prev_dir_left = False
+prev_dir_right = False
+
+reading_left = False
+reading_right = False
+
+counting_roda = 0
 
 flag_autosave_data = False
 flag_autosave_graph = False
@@ -155,8 +253,8 @@ class ScreenSplash(MDBoxLayout):
         else:
             self.ids.progress_bar.value = 100
             self.ids.progress_bar_label.text = "Loading.. [{:} %]".format(100)
-            time.sleep(0.5)
-            self.screen_manager.current = "screen_standby"
+            time.sleep(0.2)
+            self.screen_manager.current = "screen_dashboard"
             return False
 
 class ScreenStandby(MDBoxLayout):
@@ -185,8 +283,7 @@ class ScreenData(MDBoxLayout):
     def __init__(self, **kwargs):
         super(ScreenData, self).__init__(**kwargs)
         self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.select_path)
-        Clock.schedule_once(self.delayed_init, 5)
-
+        Clock.schedule_once(self.delayed_init, 1)
 
     def delayed_init(self, dt):
         self.data_tables = MDDataTable(
@@ -207,7 +304,25 @@ class ScreenData(MDBoxLayout):
         self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))        
 
         self.connect_to_plc()
-        Clock.schedule_interval(self.read_plc, SLEEP_DURATION)
+        Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+
+
+    def reset_data(self):
+        numbers = np.arange(0,100)       
+        db_bearing_temps = np.zeros([100, 100])
+        numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
+
+        self.data_tables.row_data = numbered_db.T.tolist()
+        
+    def auto_load(self, dt):
+        global db_bearing_temps
+        global arr_bearing_temps
+        global varA, varB
+        # db_bearing_temps = np.array([varA, varB])
+        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
+        # arr_bearing_temps = varA
+        self.update_table()
+        # self.update_graph(counting_roda)
 
     def open_data(self):
         global db_bearing_temps
@@ -216,10 +331,10 @@ class ScreenData(MDBoxLayout):
         # db_bearing_temps = np.array([varA, varB])
         # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
         # arr_bearing_temps = varA
-        self.update_table()
-        self.update_graph()
-        # self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
-        # self.manager_open = True
+        # self.update_table()
+        # self.update_graph()
+        self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
+        self.manager_open = True
 
     def select_path(self, path: str):
         try:
@@ -281,15 +396,57 @@ class ScreenData(MDBoxLayout):
 
     def read_plc(self, dt):
         global plc
+        global varA, varB
         global dir_left, dir_right
-
+        global prev_dir_left, prev_dir_right
+        global reading_left, reading_right
+        global counting_roda
         # while True:
         try:
-            dir_bytes = self.read_from_db(plc, DB_NUMBER, 1754, 1)
-            dir_left = dir_bytes[0]
-            dir_right = dir_bytes[1]
+            DB_bytearray = plc.db_read(3,1754,8)
+            dir_left = snap7.util.get_bool(DB_bytearray, 0, 0)
+            dir_right = snap7.util.get_bool(DB_bytearray, 0, 1)
+
+            DB_bytearray = plc.db_read(3,1748,8)
+            reading_left = snap7.util.get_bool(DB_bytearray, 0, 0)
+            reading_right = snap7.util.get_bool(DB_bytearray, 0, 1)
+           
+            DB_bytearray = plc.db_read(3,1216,8)
+            counting_roda = snap7.util.get_int(DB_bytearray, 0)
+
+            # if((dir_left and reading_left) or (dir_right and reading_right)):
+            #     self.update_table()
+
+            print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", reading_left, "sens B:" , reading_right)
+
+            if (dir_right or dir_left):
+                Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DISPLAY)
+            else:
+                Clock.unschedule(self.auto_load)
+
+            if ((prev_dir_right or prev_dir_left) and not dir_left and not dir_right):
+                try:
+                    self.auto_save_data()
+                    self.reset_data()
+
+                except Exception as e:
+                    print("An exception occurred:", e)
+                    toast("error save data")
+            # start_address = 0x6000  # Starting address of the boolean data
+            # num_bytes = 10  # Number of bytes to read
+
+            # # Read the boolean data
+
+
+            # # Convert the byte array to boolean values
+            # bool_data = [bool(x) for x in dir_bytes]
+
+            # # Print the boolean data
+            # print("YANG INI --> ", bool_data)
+
 
             var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
+
             for i in range(0, 99):
                 varA[i] = snap7.util.get_real(db_bytearray1, i * 4)
 
@@ -297,7 +454,12 @@ class ScreenData(MDBoxLayout):
             for i in range(0, 99):
                 varB[i] = snap7.util.get_real(db_bytearray2, i * 4)
 
-            print("left:", dir_left, "\t,right:", dir_right)
+            prev_dir_right = dir_right
+            prev_dir_left = dir_left
+            
+
+
+            # print("left:", dir_left, "\t,right:", dir_right)
             # print(varB)
             
 
@@ -305,68 +467,88 @@ class ScreenData(MDBoxLayout):
             print(f"Error reading PLC data: {e}")
 
             # time.sleep(SLEEP_DURATION)
+    def finding_peaks(self, counting_roda):
+        global db_bearing_temps
+        global arr_bearing_temps
+        global calc_bearing_temps
+        global arr_calc_bearing_temps  
+
+        peaks, _ = find_peaks(db_bearing_temps[counting_roda], height=BEARING_TEMP_MIN)
+        arr_bearing_temps = db_bearing_temps[counting_roda][db_bearing_temps[counting_roda] != np.array(None)]
+        if arr_bearing_temps[peaks].size == 0:
+            calc_bearing_temps = np.max(arr_bearing_temps)
+        else:
+            calc_bearing_temps = np.max(arr_bearing_temps[peaks])
+            # calc_bearing_temps = arr_bearing_temps[peaks][0])
+
 
     def update_table(self):           
         global db_bearing_temps
         global arr_bearing_temps
+        global calc_bearing_temps
+        global arr_calc_bearing_temps        
         global varA, varB
         global dir_left, dir_right
-        numbers = np.arange(1,101)
+        global reading_left, reading_right
+        global counting_roda
 
-
+        numbers = np.arange(0,100)
 
         if (dir_left == True):
             arr_bearing_temps = varA
-            
 
         if (dir_right == True):
-            arr_bearing_temps = varA
+            arr_bearing_temps = varB
 
+        if((dir_left and reading_left) or (dir_right and reading_right)):        
+            db_bearing_temps[counting_roda] = arr_bearing_temps
 
-        db_bearing_temps[0] = arr_bearing_temps
+            self.finding_peaks(counting_roda)
 
-        numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 2)
-        print(numbered_db)
+            if (dir_left == True):
+                arr_calc_bearing_temps[counting_roda*2] = calc_bearing_temps
 
-        try:
-            self.data_tables.row_data = numbered_db.T.tolist()
-            # self.data_tables.row_data = varA.T.tolist()
-        
-        except Exception as e:
-            print("An exception occurred:", e)
+            if (dir_right == True):
+                arr_calc_bearing_temps[(counting_roda*2)+1] = calc_bearing_temps
+                    
+            numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
+            try:
+                self.data_tables.row_data = numbered_db.T.tolist()
+            
+            except Exception as e:
+                print("An exception occurred:", e)
 
-    def update_graph(self, bearing_num=1 ):           
+    def update_graph(self, bearing_num = 1):           
         global db_bearing_temps
         global arr_bearing_temps
+        global calc_bearing_temps
+        global arr_calc_bearing_temps  
+
         try:
-            arr_num = bearing_num - 1
+            counting_roda = bearing_num - 1
             self.fig, self.ax = plt.subplots()
             self.fig.tight_layout()
-            
-            peaks, _ = find_peaks(db_bearing_temps[arr_num], height=BEARING_TEMP_MIN)
-            arr_bearing_temps = db_bearing_temps[arr_num][db_bearing_temps[arr_num] != np.array(None)]
-            
+
+            self.finding_peaks(counting_roda)
+                       
             self.ax.set_xlabel("n", fontsize=10)
             self.ax.set_ylabel("Temp. [C]", fontsize=10)
-            self.ax.set_ylim(0, 100)
+            self.ax.set_ylim(0, 200)
             self.ax.set_xlim(0, arr_bearing_temps.size)
             self.ax.plot(arr_bearing_temps)
-            self.ax.plot(peaks, arr_bearing_temps[peaks], "x")
+            # self.ax.plot(peaks, arr_bearing_temps[peaks], "x")
             self.ax.plot(np.zeros_like(arr_bearing_temps) + BEARING_TEMP_MIN, "--", color="gray")
 
-            if arr_bearing_temps[peaks].size == 0:
-                calc_bearing_temps = np.min(arr_bearing_temps)
-            else:
-                calc_bearing_temps = arr_bearing_temps[peaks][0]
-
             self.ids.label_bearing_temp.text = str(calc_bearing_temps)
+            self.ids.label_bearing_temp.text = str(np.round(arr_calc_bearing_temps[counting_roda],2))
             
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
         
         except Exception as e:
             print("An exception occurred:", e)
-            toast('error find peaks')
+            err_msg = str(e)
+            toast(err_msg)
     
     def update_bearing_num(self):
         self.update_graph(int(self.ids.text_bearing_num.text))
@@ -382,44 +564,60 @@ class ScreenData(MDBoxLayout):
             )
         except:
             toast("Error sorting data")
-            
+
     def save_data(self):
         global db_bearing_temps
         global arr_bearing_temps
+
         try:
-            name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
-            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.xlsx")
+            # name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
+            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            if self.ids.input_file_name.text == "":
-                disk = cwd + name_file_now
-            else:
-                disk = cwd + name_file
-            print(disk)
+            # if self.ids.input_file_name.text == "":
+            #     disk = cwd + name_file_now
+            # else:
+            disk = cwd + name_file_now
+
+            header_text = "Roda 1"
+            for i in range(1,100):
+                header_text = header_text + ';' + "Roda " + str(i) 
+            
             with open(disk,"wb") as f:
-                np.savetxt(f, db_bearing_temps.T, fmt="%.3f",delimiter="\t",header="Bearing No. \t Temperature [C]")
+                np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
+
             print("sucessfully save data")
             toast("sucessfully save data")
+
         except:
             print("error saving data")
             toast("error saving data")
-            
-    def autosave_data(self):
+
+    def auto_save_data(self):
         global db_bearing_temps
+        global arr_bearing_temps
 
         try:
-            now = datetime.now().strftime("/%d_%m_%Y_%H_%M_%S.raw")
+            # name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
+            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            disk = cwd + "\data\\" + now #for windows os
-            with open(disk,"wb") as f:
-                np.savetxt(f, db_bearing_temps.T, fmt="%.3f",delimiter="\t",header="Bearing No.  \t Temperature")
-            print("sucessfully auto save data to Default Directory")
-            toast("Sucessfully save data to The Default Directory")
-        except:
-            print("Error auto save data")
-            toast("Error auto saving data")
+            # if self.ids.input_file_name.text == "":
+            #     disk = cwd + name_file_now
+            # else:
+            disk = cwd + name_file_now
 
-    def screen_standby(self):
-        self.screen_manager.current = 'screen_standby'
+            header_text = "Roda 1"
+            for i in range(2,101):
+                header_text = header_text + ';' + "Roda " + str(i) 
+            
+            with open(disk,"wb") as f:
+                np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
+
+            print("sucessfully save data")
+            toast("sucessfully save data")
+
+        except:
+            print("error saving data")
+            toast("error saving data")
 
     def screen_data(self):
         self.screen_manager.current = 'screen_data'
@@ -436,21 +634,37 @@ class ScreenDashboard(MDBoxLayout):
     def __init__(self, **kwargs):
         super(ScreenDashboard, self).__init__(**kwargs)
         Clock.schedule_once(self.delayed_init, 1)
-
+        
     def delayed_init(self, dt):
-        self.move_left()
+        self.standby()
+        Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DATA)
+
+    def auto_load(self, dt):
+        global dir_left, dir_right
+        if (dir_left == True):
+            self.move_left()
+            
+        if (dir_right == True):
+            self.move_right()
+
+        if (dir_right == False and dir_left == False):
+            self.standby()
 
     def move_left(self):
-        global field_pos
+        global field_pos_left
+        global arr_bearing_temps, arr_calc_bearing_temps
+
         self.ids.background_image.source = 'asset/kereta_kiri.jpg'
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(1,29):
+            for i in range(1,101):
                 field = MDLabel(id=f'T_{i}', 
-                                text=f'{i}',
+                                #text=f'{i}', -> Untuk Menampilkan Posisi Data
+                                text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary',
-                                pos_hint= {'center_x': (field_pos[i-1][0]),'center_y': (field_pos[i-1][1])}
+                                font_style= 'Caption',
+                                pos_hint= {'center_x': (field_pos_left[i-1][0]),'center_y': (field_pos_left[i-1][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -459,16 +673,20 @@ class ScreenDashboard(MDBoxLayout):
             toast('error open screen')
 
     def move_right(self):
-        global field_pos
+        global field_pos_right
+        global arr_bearing_temps, arr_calc_bearing_temps
+
         self.ids.background_image.source = 'asset/kereta_kanan.jpg'
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(1,29):
+            for i in range(1,101):
                 field = MDLabel(id=f'T_{i}', 
-                                text=f'{i}',
-                                theme_text_color= 'Error',
-                                pos_hint= {'center_x': (field_pos[i-1][0]),'center_y': (field_pos[i-1][1])}
+                                #text=f'{i}', -> Untuk Menampilkan Posisi Data
+                                text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
+                                theme_text_color= 'Primary',
+                                font_style= 'Caption',
+                                pos_hint= {'center_x': (field_pos_right[i-1][0]),'center_y': (field_pos_right[i-1][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -476,8 +694,12 @@ class ScreenDashboard(MDBoxLayout):
             print("An exception occurred:", e)
             toast('error open screen')
 
-    def screen_standby(self):
-        self.screen_manager.current = 'screen_standby'
+    def standby(self):
+        self.ids.background_image.source = 'asset/kereta.png'
+        self.ids.layout_text_temps.clear_widgets()
+
+    # def screen_standby(self):
+    #     self.screen_manager.current = 'screen_standby'
 
     def screen_data(self):
         self.screen_manager.current = 'screen_data'
