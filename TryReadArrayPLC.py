@@ -6,6 +6,8 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.textfield import MDTextField
 
+from plc_reader import start_plc_reading
+
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -26,12 +28,6 @@ import time
 import serial
 from serial.tools import list_ports
 import openpyxl
-import snap7
-import numpy as np
-import threading
-import time
-
-
 
 plt.style.use('bmh')
 
@@ -100,16 +96,10 @@ field_pos = [
     # [165,1610],[255,1610],[565,1610],[655,1610],[1060,1610],[1150,1610],[1460,1610],[1550,1610],[1955,1610],[2045,1610],[2355,1610],[2445,1610],
     # [165,1920],[255,1920],[565,1920],[655,1920],[1060,1920],[1150,1920],[1460,1920],[1550,1920],[1955,1920],[2045,1920],[2355,1920],[2445,1920]
 ]
-
-DEBUG = False
-
-TEMP_OFFSET = 2.5412
-TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
-
-BEARING_TEMP_DATA = 100
-NUMBER_OF_BEARINGS = 100
-
-BEARING_TEMP_MIN = 60.5
+import snap7
+import numpy as np
+import threading
+import time
 
 # Define constants for PLC connection and database read
 PLC_IP = '192.168.0.2'
@@ -124,12 +114,19 @@ SLEEP_DURATION = 0.1  # seconds
 
 varA = np.zeros(100)
 varB = np.zeros(100)
+DEBUG = False
+
+TEMP_OFFSET = 2.5412
+TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
+
+BEARING_TEMP_DATA = 100
+NUMBER_OF_BEARINGS = 100
+
+BEARING_TEMP_MIN = 60.5
 
 db_bearing_temps = np.zeros([100, 100])
 arr_bearing_temps = np.zeros(100)
 calc_bearing_temps = 0.0
-dir_left = False
-dir_right = False
 
 flag_autosave_data = False
 flag_autosave_graph = False
@@ -180,15 +177,8 @@ class ScreenStandby(MDBoxLayout):
         # os.system("shutdown -h now") #for linux os
 
 class ScreenData(MDBoxLayout):
-    screen_manager = ObjectProperty(None)
-
     def __init__(self, **kwargs):
         super(ScreenData, self).__init__(**kwargs)
-        self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.select_path)
-        Clock.schedule_once(self.delayed_init, 5)
-
-
-    def delayed_init(self, dt):
         self.data_tables = MDDataTable(
             use_pagination=True,
             pagination_menu_pos="auto",
@@ -200,237 +190,39 @@ class ScreenData(MDBoxLayout):
 
         self.fig, self.ax = plt.subplots()
         self.fig.tight_layout()
-        
+
         self.ax.set_xlabel("Data No.", fontsize=10)
         self.ax.set_ylabel("Temp. [C]", fontsize=10)
 
-        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))        
+        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
 
-        self.connect_to_plc()
-        Clock.schedule_interval(self.read_plc, SLEEP_DURATION)
-
-    def open_data(self):
-        global db_bearing_temps
-        global arr_bearing_temps
-        global varA, varB
-        # db_bearing_temps = np.array([varA, varB])
-        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-        # arr_bearing_temps = varA
-        self.update_table()
-        self.update_graph()
-        # self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
-        # self.manager_open = True
-
-    def select_path(self, path: str):
-        try:
-            self.exit_manager(path)
-        except:
-            toast("error select file path")
-
-    def exit_manager(self, *args):
-        global db_bearing_temps
-        global arr_bearing_temps
-        try: 
-            toast("opening data")
-            dataframe = openpyxl.load_workbook(*args)
-            dataframe_opened = dataframe.active
-
-            # Iterate the loop to read the cell values
-            
-            # for row in range(1, dataframe_opened.max_row):
-            #     for col in dataframe_opened.iter_cols(1, dataframe_opened.max_column):
-            #         print(col[row].value)
-
-            # db_bearing_temps = np.array(dataframe_opened)
-            db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-            arr_bearing_temps = db_bearing_temps[0]
-            # arr_bearing_temps = arr_bearing_temps[arr_bearing_temps != np.array(None)]
-            # db_bearing_temps = db_bearing_temps[db_bearing_temps != np.array(None)]
-            # db_bearing_temps = [d for d in db_bearing_temps if not(None in d )]
-
-            # print(dataframe_opened)
-            print(db_bearing_temps)
-            print(arr_bearing_temps)
-
-            # data_set = np.loadtxt(*args, delimiter="\t", encoding=None, skiprows=1)
-            # data_base_process = data_set.T
-            self.update_table()
-            self.update_graph()
-
-            self.manager_open = False
-            self.file_manager.close()
-                   
-        except Exception as e:
-            print("An exception occurred:", e)
-            toast('error open file')
-            self.manager_open = False
-            self.file_manager.close()
-
-    def connect_to_plc(self):
-        global plc
-
-        plc = snap7.client.Client()
-        plc.connect(PLC_IP, RACK, SLOT)
-        return plc
-
-    def read_from_db(self, plc, db_number, offset, bytes_to_read):
-        # print(f"Reading from DB {db_number}, offset {offset}, bytes to read {bytes_to_read}")
-        db_bytearray = plc.db_read(db_number, offset, bytes_to_read)
-        var1 = snap7.util.get_real(db_bytearray, 0)
-        return var1, db_bytearray
-
-    def read_plc(self, dt):
-        global plc
-        global dir_left, dir_right
-
-        # while True:
-        try:
-            dir_bytes = self.read_from_db(plc, DB_NUMBER, 1754, 1)
-            dir_left = dir_bytes[0]
-            dir_right = dir_bytes[1]
-
-            var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
-            for i in range(0, 99):
-                varA[i] = snap7.util.get_real(db_bytearray1, i * 4)
-
-            var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, OFFSET2, BYTES_TO_READ2)
-            for i in range(0, 99):
-                varB[i] = snap7.util.get_real(db_bytearray2, i * 4)
-
-            print("left:", dir_left, "\t,right:", dir_right)
-            # print(varB)
-            
-
-        except RuntimeError as e:
-            print(f"Error reading PLC data: {e}")
-
-            # time.sleep(SLEEP_DURATION)
-
-    def update_table(self):           
-        global db_bearing_temps
-        global arr_bearing_temps
-        global varA, varB
-        global dir_left, dir_right
+    def update_table(self):
         numbers = np.arange(1,101)
+        numbered_db = np.vstack((numbers, np.column_stack((varA, varB))))
+        self.data_tables.row_data = numbered_db.T.tolist()
 
-
-
-        if (dir_left == True):
-            arr_bearing_temps = varA
-            
-
-        if (dir_right == True):
-            arr_bearing_temps = varA
-
-
-        db_bearing_temps[0] = arr_bearing_temps
-
-        numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 2)
-        print(numbered_db)
-
-        try:
-            self.data_tables.row_data = numbered_db.T.tolist()
-            # self.data_tables.row_data = varA.T.tolist()
-        
-        except Exception as e:
-            print("An exception occurred:", e)
-
-    def update_graph(self, bearing_num=1 ):           
-        global db_bearing_temps
-        global arr_bearing_temps
+    def update_graph(self, bearing_num=1):
         try:
             arr_num = bearing_num - 1
             self.fig, self.ax = plt.subplots()
             self.fig.tight_layout()
-            
-            peaks, _ = find_peaks(db_bearing_temps[arr_num], height=BEARING_TEMP_MIN)
-            arr_bearing_temps = db_bearing_temps[arr_num][db_bearing_temps[arr_num] != np.array(None)]
-            
+
             self.ax.set_xlabel("n", fontsize=10)
             self.ax.set_ylabel("Temp. [C]", fontsize=10)
             self.ax.set_ylim(0, 100)
-            self.ax.set_xlim(0, arr_bearing_temps.size)
-            self.ax.plot(arr_bearing_temps)
-            self.ax.plot(peaks, arr_bearing_temps[peaks], "x")
-            self.ax.plot(np.zeros_like(arr_bearing_temps) + BEARING_TEMP_MIN, "--", color="gray")
+            self.ax.set_xlim(0, len(varA))
+            self.ax.plot(varA)
+            self.ax.plot(varB)
 
-            if arr_bearing_temps[peaks].size == 0:
-                calc_bearing_temps = np.min(arr_bearing_temps)
-            else:
-                calc_bearing_temps = arr_bearing_temps[peaks][0]
-
-            self.ids.label_bearing_temp.text = str(calc_bearing_temps)
-            
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
-        
+
         except Exception as e:
             print("An exception occurred:", e)
             toast('error find peaks')
-    
+
     def update_bearing_num(self):
         self.update_graph(int(self.ids.text_bearing_num.text))
-        
-
-    def sort_on_num(self, data):
-        try:
-            return zip(
-                *sorted(
-                    enumerate(data),
-                    key=lambda l: l[0][0]
-                )
-            )
-        except:
-            toast("Error sorting data")
-            
-    def save_data(self):
-        global db_bearing_temps
-        global arr_bearing_temps
-        try:
-            name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
-            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.xlsx")
-            cwd = os.getcwd()
-            if self.ids.input_file_name.text == "":
-                disk = cwd + name_file_now
-            else:
-                disk = cwd + name_file
-            print(disk)
-            with open(disk,"wb") as f:
-                np.savetxt(f, db_bearing_temps.T, fmt="%.3f",delimiter="\t",header="Bearing No. \t Temperature [C]")
-            print("sucessfully save data")
-            toast("sucessfully save data")
-        except:
-            print("error saving data")
-            toast("error saving data")
-            
-    def autosave_data(self):
-        global db_bearing_temps
-
-        try:
-            now = datetime.now().strftime("/%d_%m_%Y_%H_%M_%S.raw")
-            cwd = os.getcwd()
-            disk = cwd + "\data\\" + now #for windows os
-            with open(disk,"wb") as f:
-                np.savetxt(f, db_bearing_temps.T, fmt="%.3f",delimiter="\t",header="Bearing No.  \t Temperature")
-            print("sucessfully auto save data to Default Directory")
-            toast("Sucessfully save data to The Default Directory")
-        except:
-            print("Error auto save data")
-            toast("Error auto saving data")
-
-    def screen_standby(self):
-        self.screen_manager.current = 'screen_standby'
-
-    def screen_data(self):
-        self.screen_manager.current = 'screen_data'
-
-    def screen_dashboard(self):
-        self.screen_manager.current = 'screen_dashboard'
-
-    def exec_shutdown(self): 
-        toast("Shutting down system")
-        os.system("shutdown /s /t 1") #for windows os
-        # os.system("shutdown -h now") #for linux os
 
 class ScreenDashboard(MDBoxLayout):
     def __init__(self, **kwargs):
@@ -492,6 +284,7 @@ class ScreenDashboard(MDBoxLayout):
 
 class BearingTemperatureMonitoringApp(MDApp):
     def build(self):
+        start_plc_reading() 
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Blue"
         self.icon = "asset\logo_kai.png" #for windows os
