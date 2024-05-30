@@ -198,7 +198,7 @@ TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
 BEARING_TEMP_DATA = 100
 NUMBER_OF_BEARINGS = 100
 
-BEARING_TEMP_MIN = 10.5
+BEARING_TEMP_MIN = 60.5
 
 # Define constants for PLC connection and database read
 PLC_IP = '192.168.0.2'
@@ -257,33 +257,13 @@ class ScreenSplash(MDBoxLayout):
             self.screen_manager.current = "screen_dashboard"
             return False
 
-class ScreenStandby(MDBoxLayout):
-    screen_manager = ObjectProperty(None)
-
-    def __init__(self, **kwargs):
-        super(ScreenStandby, self).__init__(**kwargs)
-
-    def screen_standby(self):
-        self.screen_manager.current = 'screen_standby'
-
-    def screen_data(self):
-        self.screen_manager.current = 'screen_data'
-
-    def screen_dashboard(self):
-        self.screen_manager.current = 'screen_dashboard'
-
-    def exec_shutdown(self): 
-        toast("Shutting down system")
-        os.system("shutdown /s /t 1") #for windows os
-        # os.system("shutdown -h now") #for linux os
-
 class ScreenData(MDBoxLayout):
     screen_manager = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(ScreenData, self).__init__(**kwargs)
         self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.select_path)
-        Clock.schedule_once(self.delayed_init, 1)
+        Clock.schedule_once(self.delayed_init, 2)
 
     def delayed_init(self, dt):
         self.data_tables = MDDataTable(
@@ -305,7 +285,6 @@ class ScreenData(MDBoxLayout):
 
         self.connect_to_plc()
         Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
-
 
     def reset_data(self):
         numbers = np.arange(0,100)       
@@ -619,11 +598,11 @@ class ScreenData(MDBoxLayout):
             print("error saving data")
             toast("error saving data")
 
-    def screen_data(self):
-        self.screen_manager.current = 'screen_data'
-
     def screen_dashboard(self):
         self.screen_manager.current = 'screen_dashboard'
+
+    def screen_data(self):
+        self.screen_manager.current = 'screen_data'
 
     def exec_shutdown(self): 
         toast("Shutting down system")
@@ -662,7 +641,7 @@ class ScreenDashboard(MDBoxLayout):
                 field = MDLabel(id=f'T_{i}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary',
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i-1] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
                                 pos_hint= {'center_x': (field_pos_left[i-1][0]),'center_y': (field_pos_left[i-1][1])}
                 )
@@ -684,7 +663,7 @@ class ScreenDashboard(MDBoxLayout):
                 field = MDLabel(id=f'T_{i}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary',
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i-1] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
                                 pos_hint= {'center_x': (field_pos_right[i-1][0]),'center_y': (field_pos_right[i-1][1])}
                 )
@@ -698,14 +677,11 @@ class ScreenDashboard(MDBoxLayout):
         self.ids.background_image.source = 'asset/kereta.png'
         self.ids.layout_text_temps.clear_widgets()
 
-    # def screen_standby(self):
-    #     self.screen_manager.current = 'screen_standby'
+    def screen_dashboard(self):
+        self.screen_manager.current = 'screen_dashboard'
 
     def screen_data(self):
         self.screen_manager.current = 'screen_data'
-
-    def screen_dashboard(self):
-        self.screen_manager.current = 'screen_dashboard'
 
     def exec_shutdown(self): 
         toast("Shutting down system")

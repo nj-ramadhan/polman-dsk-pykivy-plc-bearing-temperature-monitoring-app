@@ -2,7 +2,6 @@
 
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 #:include screen_splash.kv
-#:include screen_standby.kv
 #:include screen_dashboard.kv
 #:include screen_data.kv
 
@@ -15,13 +14,7 @@ ScreenManager:
         ScreenSplash:
             app_window: app
             screen_manager: screen_manager
-            screen_setting: screen_standby
-
-    Screen:
-        name: 'screen_standby'
-        ScreenStandby:
-            id: screen_standby
-            screen_manager: screen_manager
+            screen_dashboard: screen_dashboard
 
     Screen:
         name: 'screen_dashboard'
