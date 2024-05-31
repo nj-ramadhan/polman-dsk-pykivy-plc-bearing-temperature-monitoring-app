@@ -210,10 +210,11 @@ OFFSET2 = 404
 BYTES_TO_READ1 = 1278
 BYTES_TO_READ2 = 1278
 SLEEP_DURATION_DATA = 0.1  # seconds
-SLEEP_DURATION_DISPLAY = 0.3
+SLEEP_DURATION_TABLE = 1.0
+SLEEP_DURATION_DISPLAY = 1.0
 
-varA = np.zeros(100)
-varB = np.zeros(100)
+arr_bearing_temps_left = np.zeros(100)
+arr_bearing_temps_right = np.zeros(100)
 
 db_bearing_temps = np.zeros([100, 100])
 arr_bearing_temps = np.zeros(100)
@@ -224,10 +225,11 @@ dir_right = False
 prev_dir_left = False
 prev_dir_right = False
 
-reading_left = False
-reading_right = False
+read_sensor_left = False
+read_sensor_right = False
 
-counting_roda = 0
+counting_wheel = 0
+prev_counting_wheel = 0
 
 flag_autosave_data = False
 flag_autosave_graph = False
@@ -253,7 +255,7 @@ class ScreenSplash(MDBoxLayout):
         else:
             self.ids.progress_bar.value = 100
             self.ids.progress_bar_label.text = "Loading.. [{:} %]".format(100)
-            time.sleep(0.2)
+            # time.sleep(0.2)
             self.screen_manager.current = "screen_dashboard"
             return False
 
@@ -287,29 +289,23 @@ class ScreenData(MDBoxLayout):
         Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
 
     def reset_data(self):
-        numbers = np.arange(0,100)       
+        global db_bearing_temps
+        global arr_calc_bearing_temps
+
+        numbers = np.arange(1,101)       
         db_bearing_temps = np.zeros([100, 100])
+        arr_calc_bearing_temps = np.zeros(100)
         numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
 
         self.data_tables.row_data = numbered_db.T.tolist()
-        
-    def auto_load(self, dt):
-        global db_bearing_temps
-        global arr_bearing_temps
-        global varA, varB
-        # db_bearing_temps = np.array([varA, varB])
-        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-        # arr_bearing_temps = varA
-        self.update_table()
-        # self.update_graph(counting_roda)
 
     def open_data(self):
         global db_bearing_temps
         global arr_bearing_temps
-        global varA, varB
-        # db_bearing_temps = np.array([varA, varB])
+        global arr_bearing_temps_left, arr_bearing_temps_right
+        # db_bearing_temps = np.array([arr_bearing_temps_left, arr_bearing_temps_right])
         # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-        # arr_bearing_temps = varA
+        # arr_bearing_temps = arr_bearing_temps_left
         # self.update_table()
         # self.update_graph()
         self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
@@ -326,28 +322,32 @@ class ScreenData(MDBoxLayout):
         global arr_bearing_temps
         try: 
             toast("opening data")
-            dataframe = openpyxl.load_workbook(*args)
-            dataframe_opened = dataframe.active
+            # dataframe = openpyxl.load_workbook(*args)
+            # dataframe_opened = dataframe.active
 
-            # Iterate the loop to read the cell values
+            # # Iterate the loop to read the cell values
             
             # for row in range(1, dataframe_opened.max_row):
             #     for col in dataframe_opened.iter_cols(1, dataframe_opened.max_column):
             #         print(col[row].value)
 
             # db_bearing_temps = np.array(dataframe_opened)
-            db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-            arr_bearing_temps = db_bearing_temps[0]
+            # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
+            # arr_bearing_temps = db_bearing_temps[0]
             # arr_bearing_temps = arr_bearing_temps[arr_bearing_temps != np.array(None)]
             # db_bearing_temps = db_bearing_temps[db_bearing_temps != np.array(None)]
             # db_bearing_temps = [d for d in db_bearing_temps if not(None in d )]
 
             # print(dataframe_opened)
+            # print(db_bearing_temps)
+            # print(arr_bearing_temps)
+
+            data_set = np.loadtxt(*args, delimiter=";", encoding=None, skiprows=1)
+            db_bearing_temps = data_set.T
+
             print(db_bearing_temps)
             print(arr_bearing_temps)
 
-            # data_set = np.loadtxt(*args, delimiter="\t", encoding=None, skiprows=1)
-            # data_base_process = data_set.T
             self.update_table()
             self.update_graph()
 
@@ -375,11 +375,11 @@ class ScreenData(MDBoxLayout):
 
     def read_plc(self, dt):
         global plc
-        global varA, varB
+        global arr_bearing_temps_left, arr_bearing_temps_right
         global dir_left, dir_right
         global prev_dir_left, prev_dir_right
-        global reading_left, reading_right
-        global counting_roda
+        global read_sensor_left, read_sensor_right
+        global counting_wheel, prev_counting_wheel
         # while True:
         try:
             DB_bytearray = plc.db_read(3,1754,8)
@@ -387,26 +387,25 @@ class ScreenData(MDBoxLayout):
             dir_right = snap7.util.get_bool(DB_bytearray, 0, 1)
 
             DB_bytearray = plc.db_read(3,1748,8)
-            reading_left = snap7.util.get_bool(DB_bytearray, 0, 0)
-            reading_right = snap7.util.get_bool(DB_bytearray, 0, 1)
+            read_sensor_left = snap7.util.get_bool(DB_bytearray, 0, 0)
+            read_sensor_right = snap7.util.get_bool(DB_bytearray, 0, 1)
            
             DB_bytearray = plc.db_read(3,1216,8)
-            counting_roda = snap7.util.get_int(DB_bytearray, 0)
+            counting_wheel = snap7.util.get_int(DB_bytearray, 0)
 
-            # if((dir_left and reading_left) or (dir_right and reading_right)):
+            # if((dir_left and read_sensor_left) or (dir_right and read_sensor_right)):
             #     self.update_table()
 
-            print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", reading_left, "sens B:" , reading_right)
+            print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", read_sensor_left, "sens B:" , read_sensor_right)
 
-            if (dir_right or dir_left):
-                Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DISPLAY)
-            else:
-                Clock.unschedule(self.auto_load)
+            if ((dir_right or dir_left) and not prev_dir_right and not prev_dir_left):
+                Clock.schedule_interval(self.auto_load, SLEEP_DURATION_TABLE)
 
             if ((prev_dir_right or prev_dir_left) and not dir_left and not dir_right):
                 try:
                     self.auto_save_data()
                     self.reset_data()
+                    Clock.unschedule(self.auto_load)
 
                 except Exception as e:
                     print("An exception occurred:", e)
@@ -427,70 +426,82 @@ class ScreenData(MDBoxLayout):
             var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
 
             for i in range(0, 99):
-                varA[i] = snap7.util.get_real(db_bytearray1, i * 4)
+                arr_bearing_temps_left[i] = snap7.util.get_real(db_bytearray1, i * 4)
 
             var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, OFFSET2, BYTES_TO_READ2)
             for i in range(0, 99):
-                varB[i] = snap7.util.get_real(db_bytearray2, i * 4)
+                arr_bearing_temps_right[i] = snap7.util.get_real(db_bytearray2, i * 4)
 
             prev_dir_right = dir_right
             prev_dir_left = dir_left
+            prev_counting_wheel = counting_wheel
             
 
 
             # print("left:", dir_left, "\t,right:", dir_right)
-            # print(varB)
+            # print(arr_bearing_temps_right)
             
 
         except RuntimeError as e:
             print(f"Error reading PLC data: {e}")
 
             # time.sleep(SLEEP_DURATION)
-    def finding_peaks(self, counting_roda):
+    def finding_bearings(self, counting_wheel):
         global db_bearing_temps
         global arr_bearing_temps
         global calc_bearing_temps
         global arr_calc_bearing_temps  
 
-        peaks, _ = find_peaks(db_bearing_temps[counting_roda], height=BEARING_TEMP_MIN)
-        arr_bearing_temps = db_bearing_temps[counting_roda][db_bearing_temps[counting_roda] != np.array(None)]
+        peaks, _ = find_peaks(db_bearing_temps[counting_wheel], height = BEARING_TEMP_MIN)
+        arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
         if arr_bearing_temps[peaks].size == 0:
             calc_bearing_temps = np.max(arr_bearing_temps)
         else:
             calc_bearing_temps = np.max(arr_bearing_temps[peaks])
             # calc_bearing_temps = arr_bearing_temps[peaks][0])
 
+    def auto_load(self, dt):
+        global db_bearing_temps
+        global arr_bearing_temps
+        global arr_bearing_temps_left, arr_bearing_temps_right
+        global counting_wheel
+        # db_bearing_temps = np.array([arr_bearing_temps_left, arr_bearing_temps_right])
+        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
+        # arr_bearing_temps = arr_bearing_temps_left
+        self.update_table()
+        self.ids.text_bearing_num.text = str(counting_wheel)
+        self.update_bearing_num()
 
     def update_table(self):           
         global db_bearing_temps
         global arr_bearing_temps
         global calc_bearing_temps
         global arr_calc_bearing_temps        
-        global varA, varB
+        global arr_bearing_temps_left, arr_bearing_temps_right
         global dir_left, dir_right
-        global reading_left, reading_right
-        global counting_roda
+        global read_sensor_left, read_sensor_right
+        global counting_wheel
 
-        numbers = np.arange(0,100)
+        numbers = np.arange(1,101)
 
         if (dir_left == True):
-            arr_bearing_temps = varA
+            arr_bearing_temps = arr_bearing_temps_left
 
         if (dir_right == True):
-            arr_bearing_temps = varB
+            arr_bearing_temps = arr_bearing_temps_right
 
-        if((dir_left and reading_left) or (dir_right and reading_right)):        
-            db_bearing_temps[counting_roda] = arr_bearing_temps
+        if((dir_left and read_sensor_left) or (dir_right and read_sensor_right)):        
+            db_bearing_temps[counting_wheel] = arr_bearing_temps
 
-            self.finding_peaks(counting_roda)
+            self.finding_bearings(counting_wheel)
 
             if (dir_left == True):
-                arr_calc_bearing_temps[counting_roda*2] = calc_bearing_temps
+                arr_calc_bearing_temps[counting_wheel*2] = calc_bearing_temps
 
             if (dir_right == True):
-                arr_calc_bearing_temps[(counting_roda*2)+1] = calc_bearing_temps
+                arr_calc_bearing_temps[(counting_wheel*2)+1] = calc_bearing_temps
                     
-            numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
+            numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
             try:
                 self.data_tables.row_data = numbered_db.T.tolist()
             
@@ -501,14 +512,13 @@ class ScreenData(MDBoxLayout):
         global db_bearing_temps
         global arr_bearing_temps
         global calc_bearing_temps
-        global arr_calc_bearing_temps  
+        global arr_calc_bearing_temps
 
         try:
-            counting_roda = bearing_num - 1
             self.fig, self.ax = plt.subplots()
             self.fig.tight_layout()
 
-            self.finding_peaks(counting_roda)
+            self.finding_bearings(bearing_num - 1)
                        
             self.ax.set_xlabel("n", fontsize=10)
             self.ax.set_ylabel("Temp. [C]", fontsize=10)
@@ -518,8 +528,8 @@ class ScreenData(MDBoxLayout):
             # self.ax.plot(peaks, arr_bearing_temps[peaks], "x")
             self.ax.plot(np.zeros_like(arr_bearing_temps) + BEARING_TEMP_MIN, "--", color="gray")
 
-            self.ids.label_bearing_temp.text = str(calc_bearing_temps)
-            self.ids.label_bearing_temp.text = str(np.round(arr_calc_bearing_temps[counting_roda],2))
+            # self.ids.label_bearing_temp.text = str(calc_bearing_temps)
+            self.ids.label_bearing_temp.text = str(np.round(arr_calc_bearing_temps[counting_wheel],2))
             
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
@@ -532,7 +542,6 @@ class ScreenData(MDBoxLayout):
     def update_bearing_num(self):
         self.update_graph(int(self.ids.text_bearing_num.text))
         
-
     def sort_on_num(self, data):
         try:
             return zip(
@@ -612,14 +621,15 @@ class ScreenData(MDBoxLayout):
 class ScreenDashboard(MDBoxLayout):
     def __init__(self, **kwargs):
         super(ScreenDashboard, self).__init__(**kwargs)
-        Clock.schedule_once(self.delayed_init, 1)
+        Clock.schedule_once(self.delayed_init, 3)
         
     def delayed_init(self, dt):
         self.standby()
-        Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DATA)
+        Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DISPLAY)
 
     def auto_load(self, dt):
         global dir_left, dir_right
+
         if (dir_left == True):
             self.move_left()
             
@@ -631,7 +641,7 @@ class ScreenDashboard(MDBoxLayout):
 
     def move_left(self):
         global field_pos_left
-        global arr_bearing_temps, arr_calc_bearing_temps
+        global arr_calc_bearing_temps
 
         self.ids.background_image.source = 'asset/kereta_kiri.jpg'
 
@@ -640,7 +650,7 @@ class ScreenDashboard(MDBoxLayout):
             for i in range(1,101):
                 field = MDLabel(id=f'T_{i}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
+                                text= f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i-1] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
                                 pos_hint= {'center_x': (field_pos_left[i-1][0]),'center_y': (field_pos_left[i-1][1])}
@@ -653,7 +663,7 @@ class ScreenDashboard(MDBoxLayout):
 
     def move_right(self):
         global field_pos_right
-        global arr_bearing_temps, arr_calc_bearing_temps
+        global arr_calc_bearing_temps
 
         self.ids.background_image.source = 'asset/kereta_kanan.jpg'
 
