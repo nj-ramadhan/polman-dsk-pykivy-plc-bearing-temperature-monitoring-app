@@ -458,6 +458,8 @@ class ScreenData(MDBoxLayout):
 
         except RuntimeError as e:
             print(f"Error reading PLC data: {e}")
+            Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
+            toast("PLC is disconnected")
 
             # time.sleep(SLEEP_DURATION)
     def finding_bearings(self, counting_wheel):
@@ -614,8 +616,8 @@ class ScreenData(MDBoxLayout):
             with open(disk,"wb") as f:
                 np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
 
-            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
-            cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA'
+            name_file_now = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.csv")
+            cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
             # if self.ids.input_file_name.text == "":
             #     disk = cwd + name_file_now
             # else:
