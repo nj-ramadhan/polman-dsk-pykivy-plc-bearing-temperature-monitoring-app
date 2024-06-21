@@ -210,8 +210,9 @@ OFFSET2 = 404
 BYTES_TO_READ1 = 1278
 BYTES_TO_READ2 = 1278
 SLEEP_DURATION_DATA = 0.1  # seconds
-SLEEP_DURATION_TABLE = 1.0
+SLEEP_DURATION_TABLE = 0.5
 SLEEP_DURATION_DISPLAY = 1.0
+REQUEST_TIME_OUT = 5.0
 
 arr_bearing_temps_left = np.zeros(100)
 arr_bearing_temps_right = np.zeros(100)
@@ -283,10 +284,23 @@ class ScreenData(MDBoxLayout):
         self.ax.set_xlabel("Data No.", fontsize=10)
         self.ax.set_ylabel("Temp. [C]", fontsize=10)
 
-        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))        
+        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
+        try:
+            self.connect_to_plc()
+            Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+            toast("PLC is sucessfully connected")
+        except:
+            Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
+            toast("PLC is disconnected")
 
-        self.connect_to_plc()
-        Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+    def auto_reconnect(self, dt):
+        try:
+            self.connect_to_plc()
+            Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+            Clock.unschedule(self.auto_reconnect)
+            toast("PLC is sucessfully connected")
+        except:
+            toast("PLC is Ddisconnected, try reconnecting..")
 
     def reset_data(self):
         global db_bearing_temps
@@ -588,6 +602,20 @@ class ScreenData(MDBoxLayout):
             # name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
             name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
+            # if self.ids.input_file_name.text == "":
+            #     disk = cwd + name_file_now
+            # else:
+            disk = cwd + name_file_now
+
+            header_text = "Roda 1"
+            for i in range(2,101):
+                header_text = header_text + ';' + "Roda " + str(i) 
+            
+            with open(disk,"wb") as f:
+                np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
+
+            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
+            cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA'
             # if self.ids.input_file_name.text == "":
             #     disk = cwd + name_file_now
             # else:
