@@ -6,27 +6,26 @@
 #:include screen_data.kv
 
 
-ScreenManager:
+# ScreenManager:
+<RootScreen>:
     id: screen_manager
     transition: NoTransition()
-    Screen:
+    
+    ScreenSplash:
+        app_window: app
         name: 'screen_splash'
-        ScreenSplash:
-            app_window: app
-            screen_manager: screen_manager
-            screen_dashboard: screen_dashboard
+        screen_manager: screen_manager
+        screen_dashboard: screen_dashboard
 
-    Screen:
+    ScreenDashboard:
+        id: screen_dashboard
         name: 'screen_dashboard'
-        ScreenDashboard:
-            id: screen_dashboard
-            screen_manager: screen_manager
+        screen_manager: screen_manager
 
-    Screen:
+    ScreenData:
+        id: screen_data
         name: 'screen_data'
-        ScreenData:
-            id: screen_data
-            screen_manager: screen_manager
+        screen_manager: screen_manager
          
 
                   

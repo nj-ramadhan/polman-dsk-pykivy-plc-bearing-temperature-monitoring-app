@@ -11,24 +11,6 @@
 			padding: 20
             size_hint_y: 0.1
 
-			MDFillRoundFlatIconButton: #shutdown button
-				id: bt_shutdown
-				icon: 'power'
-				text: ' '
-				md_bg_color: '#A50000'
-				font_size: 40
-				on_press: root.exec_shutdown()
-				size_hint_x: 0.1
-
-			MDLabel: #title label
-				id: title            
-				text: "BEARING TEMPERATURE MONITORING"
-				halign: 'center'
-				font_style: 'H5'
-				theme_text_color: 'Primary'
-				bold: True
-				size_hint_x: 0.7
-                    
             Image: #icon logo 1
                 id: logo_kai
                 source:'asset/logo_kai.png'
@@ -40,13 +22,55 @@
                 source:'asset/logo_polman.png'
                 allow_stretch: True           
 				size_hint_x: 0.1   
-		
+
+			MDLabel: #title label
+				id: title            
+				text: "BEARING TEMPERATURE MONITORING"
+				halign: 'center'
+				font_style: 'H4'
+				theme_text_color: 'Primary'
+				bold: True
+				size_hint_x: 0.7
+
+			MDFillRoundFlatIconButton: #shutdown button
+				id: bt_shutdown
+				icon: 'power'
+				text: ' '
+				md_bg_color: '#A50000'
+				font_size: 30
+				on_press: root.exec_shutdown()
+				size_hint_x: 0.1
+
+        MDBoxLayout: #realtime clock layout
+            id: realtime_clock_layout
+            orientation: "horizontal"
+			valign: 'bottom'
+			padding: 20
+			size_hint_y: 0.02
+			
+			MDLabel:
+				id: lb_train_name
+				font_style: 'H6'
+
+			MDLabel:
+				id: lb_train_type
+				font_style: 'H6'
+
+			MDLabel:
+				id: lb_train_speed
+				font_style: 'H6'
+
+			MDLabel:
+				id: lb_realtime_clock
+				font_style: 'H6'
+				halign: 'right'
+
 		MDBoxLayout: #data layout
 			id: layout_data
 			orientation: "vertical"
 			padding:20
 			spacing:20
-			size_hint_y: 0.7
+			size_hint_y: 0.68
 
 			AnchorLayout:
 				id: layout_tables

@@ -4,12 +4,12 @@ from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.filemanager import MDFileManager
-from kivymd.uix.textfield import MDTextField
+from kivy.uix.screenmanager import ScreenManager
+from kivymd.uix.screen import MDScreen
 
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.config import Config
 from kivy.metrics import dp
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.properties import ObjectProperty
@@ -30,9 +30,9 @@ import snap7
 import numpy as np
 import threading
 import time
+import locale
 
-
-
+locale.setlocale(locale.LC_TIME, "id_ID")
 plt.style.use('bmh')
 
 colors = {
@@ -209,9 +209,10 @@ OFFSET1 = 8
 OFFSET2 = 404
 BYTES_TO_READ1 = 1278
 BYTES_TO_READ2 = 1278
-SLEEP_DURATION_DATA = 0.1  # seconds
-SLEEP_DURATION_TABLE = 0.5
-SLEEP_DURATION_DISPLAY = 1.0
+DELAY_BEFORE_READING_PLC = 7
+INTERVAL_DURATION_DATA = 0.01  # seconds
+INTERVAL_DURATION_UPDATE_TABLE = 0.5
+INTERVAL_DURATION_UPDATE_DISPLAY = 1.0
 REQUEST_TIME_OUT = 5.0
 
 arr_bearing_temps_left = np.zeros(100)
@@ -232,11 +233,15 @@ read_sensor_right = False
 counting_wheel = 0
 prev_counting_wheel = 0
 
+train_name = ""
+train_type = ""
+train_speed = 0.0
+
 flag_autosave_data = False
 flag_autosave_graph = False
 graph_state = 0
 
-class ScreenSplash(MDBoxLayout):
+class ScreenSplash(MDScreen):
     screen_manager = ObjectProperty(None)
     screen_standby = ObjectProperty(None)
     app_window = ObjectProperty(None)
@@ -256,17 +261,16 @@ class ScreenSplash(MDBoxLayout):
         else:
             self.ids.progress_bar.value = 100
             self.ids.progress_bar_label.text = "Loading.. [{:} %]".format(100)
-            # time.sleep(0.2)
             self.screen_manager.current = "screen_dashboard"
             return False
 
-class ScreenData(MDBoxLayout):
+class ScreenData(MDScreen):
     screen_manager = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(ScreenData, self).__init__(**kwargs)
-        self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.select_path)
-        Clock.schedule_once(self.delayed_init, 5)
+        self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.select_path, sort_by='date')
+        Clock.schedule_once(self.delayed_init, DELAY_BEFORE_READING_PLC)
 
     def delayed_init(self, dt):
         self.data_tables = MDDataTable(
@@ -287,7 +291,7 @@ class ScreenData(MDBoxLayout):
         self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
         try:
             self.connect_to_plc()
-            Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+            Clock.schedule_interval(self.read_plc, INTERVAL_DURATION_DATA)
             toast("PLC is sucessfully connected")
         except:
             Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
@@ -296,7 +300,7 @@ class ScreenData(MDBoxLayout):
     def auto_reconnect(self, dt):
         try:
             self.connect_to_plc()
-            Clock.schedule_interval(self.read_plc, SLEEP_DURATION_DATA)
+            Clock.schedule_interval(self.read_plc, INTERVAL_DURATION_DATA)
             Clock.unschedule(self.auto_reconnect)
             toast("PLC is sucessfully connected")
         except:
@@ -317,11 +321,6 @@ class ScreenData(MDBoxLayout):
         global db_bearing_temps
         global arr_bearing_temps
         global arr_bearing_temps_left, arr_bearing_temps_right
-        # db_bearing_temps = np.array([arr_bearing_temps_left, arr_bearing_temps_right])
-        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-        # arr_bearing_temps = arr_bearing_temps_left
-        # self.update_table()
-        # self.update_graph()
         self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
         self.manager_open = True
 
@@ -336,31 +335,11 @@ class ScreenData(MDBoxLayout):
         global arr_bearing_temps
         try: 
             toast("opening data")
-            # dataframe = openpyxl.load_workbook(*args)
-            # dataframe_opened = dataframe.active
-
-            # # Iterate the loop to read the cell values
-            
-            # for row in range(1, dataframe_opened.max_row):
-            #     for col in dataframe_opened.iter_cols(1, dataframe_opened.max_column):
-            #         print(col[row].value)
-
-            # db_bearing_temps = np.array(dataframe_opened)
-            # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-            # arr_bearing_temps = db_bearing_temps[0]
-            # arr_bearing_temps = arr_bearing_temps[arr_bearing_temps != np.array(None)]
-            # db_bearing_temps = db_bearing_temps[db_bearing_temps != np.array(None)]
-            # db_bearing_temps = [d for d in db_bearing_temps if not(None in d )]
-
-            # print(dataframe_opened)
-            # print(db_bearing_temps)
-            # print(arr_bearing_temps)
-
             data_set = np.loadtxt(*args, delimiter=";", encoding=None, skiprows=1)
             db_bearing_temps = data_set.T
 
-            print(db_bearing_temps)
-            print(arr_bearing_temps)
+            # print(db_bearing_temps)
+            # print(arr_bearing_temps)
 
             self.update_table()
             self.update_graph()
@@ -382,7 +361,6 @@ class ScreenData(MDBoxLayout):
         return plc
 
     def read_from_db(self, plc, db_number, offset, bytes_to_read):
-        # print(f"Reading from DB {db_number}, offset {offset}, bytes to read {bytes_to_read}")
         db_bytearray = plc.db_read(db_number, offset, bytes_to_read)
         var1 = snap7.util.get_real(db_bytearray, 0)
         return var1, db_bytearray
@@ -394,7 +372,7 @@ class ScreenData(MDBoxLayout):
         global prev_dir_left, prev_dir_right
         global read_sensor_left, read_sensor_right
         global counting_wheel, prev_counting_wheel
-        # while True:
+        global train_name, train_type, train_speed
         try:
             DB_bytearray = plc.db_read(3,1754,8)
             dir_left = snap7.util.get_bool(DB_bytearray, 0, 0)
@@ -407,13 +385,19 @@ class ScreenData(MDBoxLayout):
             DB_bytearray = plc.db_read(3,1216,8)
             counting_wheel = snap7.util.get_int(DB_bytearray, 0)
 
-            # if((dir_left and read_sensor_left) or (dir_right and read_sensor_right)):
-            #     self.update_table()
+            DB_bytearray = plc.db_read(3,1750,8)
+            train_speed = snap7.util.get_real(DB_bytearray, 0)
 
-            print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", read_sensor_left, "sens B:" , read_sensor_right)
+            DB_bytearray = plc.db_read(3,1218,8)
+            train_type = snap7.util.get_string(DB_bytearray, 0)
+
+            DB_bytearray = plc.db_read(3,1476,8)
+            train_name = snap7.util.get_string(DB_bytearray, 0)
+
+            # print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", read_sensor_left, "sens B:" , read_sensor_right)
 
             if ((dir_right or dir_left) and not prev_dir_right and not prev_dir_left):
-                Clock.schedule_interval(self.auto_load, SLEEP_DURATION_TABLE)
+                Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_TABLE)
 
             if ((prev_dir_right or prev_dir_left) and not dir_left and not dir_right):
                 try:
@@ -424,44 +408,25 @@ class ScreenData(MDBoxLayout):
                 except Exception as e:
                     print("An exception occurred:", e)
                     toast("error save data")
-            # start_address = 0x6000  # Starting address of the boolean data
-            # num_bytes = 10  # Number of bytes to read
+            
+            if (dir_right or dir_left):
+                var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
+                for i in range(0, 99):
+                    arr_bearing_temps_left[i] = snap7.util.get_real(db_bytearray1, i * 4)
 
-            # # Read the boolean data
-
-
-            # # Convert the byte array to boolean values
-            # bool_data = [bool(x) for x in dir_bytes]
-
-            # # Print the boolean data
-            # print("YANG INI --> ", bool_data)
-
-
-            var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
-
-            for i in range(0, 99):
-                arr_bearing_temps_left[i] = snap7.util.get_real(db_bytearray1, i * 4)
-
-            var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, OFFSET2, BYTES_TO_READ2)
-            for i in range(0, 99):
-                arr_bearing_temps_right[i] = snap7.util.get_real(db_bytearray2, i * 4)
+                var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, OFFSET2, BYTES_TO_READ2)
+                for i in range(0, 99):
+                    arr_bearing_temps_right[i] = snap7.util.get_real(db_bytearray2, i * 4)
 
             prev_dir_right = dir_right
             prev_dir_left = dir_left
             prev_counting_wheel = counting_wheel
             
-
-
-            # print("left:", dir_left, "\t,right:", dir_right)
-            # print(arr_bearing_temps_right)
-            
-
         except RuntimeError as e:
             print(f"Error reading PLC data: {e}")
             Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
             toast("PLC is disconnected")
 
-            # time.sleep(SLEEP_DURATION)
     def finding_bearings(self, counting_wheel):
         global db_bearing_temps
         global arr_bearing_temps
@@ -469,13 +434,6 @@ class ScreenData(MDBoxLayout):
         global arr_calc_bearing_temps  
 
         arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
-        # peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
-        # if arr_bearing_temps[peaks].size == 0:
-        #     calc_bearing_temps = np.max(arr_bearing_temps)
-        # else:
-        #     calc_bearing_temps = np.max(arr_bearing_temps[peaks])
-        #     # calc_bearing_temps = arr_bearing_temps[peaks][0])
-
         arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
         peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
 
@@ -485,26 +443,17 @@ class ScreenData(MDBoxLayout):
         # print(middle_value)
         if arr_bearing_temps[peaks].size == 0:
                 calc_bearing_temps = np.max(arr_bearing_temps)
-                # print("array trimmed", arr_bearing_trimmed)
-                # print("nilai suhu bearing tidak ada peak" , calc_bearing_temps)
-
         else:
             if middle_value <= arr_bearing_temps[0]:
                 calc_bearing_temps = middle_value
-                # print("array trimmed", arr_bearing_trimmed)
-                # print("nilai suhu bearing tidak normal" , calc_bearing_temps)
             else:
                 calc_bearing_temps = np.max(arr_bearing_temps[peaks])
-                # print("nilai suhu bearing normal", calc_bearing_temps)
 
     def auto_load(self, dt):
         global db_bearing_temps
         global arr_bearing_temps
         global arr_bearing_temps_left, arr_bearing_temps_right
         global counting_wheel
-        # db_bearing_temps = np.array([arr_bearing_temps_left, arr_bearing_temps_right])
-        # db_bearing_temps = np.array([[i.value for i in j] for j in dataframe_opened['B2':'CW101']])
-        # arr_bearing_temps = arr_bearing_temps_left
         self.update_table()
         self.ids.text_bearing_num.text = str(counting_wheel)
         self.update_bearing_num()
@@ -570,12 +519,8 @@ class ScreenData(MDBoxLayout):
             self.ax.set_ylim(0, 200)
             self.ax.set_xlim(0, arr_bearing_temps.size)
             self.ax.plot(arr_bearing_temps)
-            # self.ax.plot(peaks, arr_bearing_temps[peaks], "x")
             self.ax.plot(np.zeros_like(arr_bearing_temps) + BEARING_TEMP_MIN, "--", color="gray")
-
-            # self.ids.label_bearing_temp.text = str(calc_bearing_temps)
             self.ids.label_bearing_temp.text = str(np.round(arr_calc_bearing_temps[counting_wheel],2))
-            
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
         
@@ -603,12 +548,8 @@ class ScreenData(MDBoxLayout):
         global arr_bearing_temps
 
         try:
-            # name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
             name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            # if self.ids.input_file_name.text == "":
-            #     disk = cwd + name_file_now
-            # else:
             disk = cwd + name_file_now
 
             header_text = "Roda 1"
@@ -630,12 +571,8 @@ class ScreenData(MDBoxLayout):
         global arr_bearing_temps
 
         try:
-            # name_file = "\data\\" + self.ids.input_file_name.text + ".xlsx"
             name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            # if self.ids.input_file_name.text == "":
-            #     disk = cwd + name_file_now
-            # else:
             disk = cwd + name_file_now
 
             header_text = "Roda 1"
@@ -647,9 +584,6 @@ class ScreenData(MDBoxLayout):
 
             name_file_now = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.csv")
             cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
-            # if self.ids.input_file_name.text == "":
-            #     disk = cwd + name_file_now
-            # else:
             disk = cwd + name_file_now
 
             header_text = "Roda 1"
@@ -677,17 +611,32 @@ class ScreenData(MDBoxLayout):
         os.system("shutdown /s /t 1") #for windows os
         # os.system("shutdown -h now") #for linux os
 
-class ScreenDashboard(MDBoxLayout):
+class ScreenDashboard(MDScreen):
     def __init__(self, **kwargs):
         super(ScreenDashboard, self).__init__(**kwargs)
-        Clock.schedule_once(self.delayed_init, 3)
+        Clock.schedule_once(self.delayed_init, DELAY_BEFORE_READING_PLC)
         
     def delayed_init(self, dt):
         self.standby()
-        Clock.schedule_interval(self.auto_load, SLEEP_DURATION_DISPLAY)
+        Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_DISPLAY)
 
     def auto_load(self, dt):
         global dir_left, dir_right
+        global train_name, train_type, train_speed
+
+        screenData = self.screen_manager.get_screen('screen_data')
+
+        self.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
+        screenData.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
+
+        self.ids.lb_train_name.text = "Kereta: " + train_name
+        screenData.ids.lb_train_name.text = "Kereta: " + train_name
+
+        self.ids.lb_train_type.text = "Jenis Sarana: " + train_type
+        screenData.ids.lb_train_type.text = "Jenis Sarana: " + train_type
+
+        self.ids.lb_train_speed.text = "Kecepatan: " + str(train_speed)
+        screenData.ids.lb_train_speed.text = "Kecepatan: " + str(train_speed)
 
         if (dir_left == True):
             self.move_left()
@@ -757,6 +706,9 @@ class ScreenDashboard(MDBoxLayout):
         os.system("shutdown /s /t 1") #for windows os
         # os.system("shutdown -h now") #for linux os
 
+class RootScreen(ScreenManager):
+    pass
+
 class BearingTemperatureMonitoringApp(MDApp):
     def build(self):
         self.theme_cls.colors = colors
@@ -766,8 +718,8 @@ class BearingTemperatureMonitoringApp(MDApp):
         Window.borderless = True
         Window.allow_screensaver = True
 
-        screen = Builder.load_file("main.kv")
-        return screen
+        Builder.load_file('main.kv')
+        return RootScreen()
 
 if __name__ == "__main__":
     BearingTemperatureMonitoringApp().run()
