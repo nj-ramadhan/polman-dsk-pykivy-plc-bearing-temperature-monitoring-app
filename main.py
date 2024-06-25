@@ -197,30 +197,47 @@ PLC_IP = '192.168.0.2'
 RACK = 0
 SLOT = 1
 DB_NUMBER = 3
-OFFSET1 = 8
-OFFSET2 = 404
-BYTES_TO_READ1 = 1278
-BYTES_TO_READ2 = 1278
-DELAY_BEFORE_READING_PLC = 7
-INTERVAL_DURATION_DATA = 0.01  # seconds
+
+DB_OFFSET_COUNTER = 0
+DB_OFFSET_TRAIN_NAME = 2
+DB_OFFSET_TRAIN_TYPE = 260
+DB_OFFSET_TRAIN_SPEED = 534
+
+DB_OFFSET_SENSOR = 532
+DB_OFFSET_DIR = 538
+
+DB_OFFSET_TEMPERATURE_L = 562
+DB_OFFSET_TEMPERATURE_R = 962
+
+DB_OFFSET_TEMPERATURE_BEARING = [1362, 1762, 2162, 2562, 2962]
+
+BYTES_TO_READ_S = 8
+BYTES_TO_READ_M = 64
+BYTES_TO_READ_L = 1278
+
+DELAY_BEFORE_READING_PLC = 5
+INTERVAL_DURATION_DATA = 0.05  # seconds
 INTERVAL_DURATION_UPDATE_TABLE = 0.5
 INTERVAL_DURATION_UPDATE_DISPLAY = 1.0
 REQUEST_TIME_OUT = 5.0
 
-arr_bearing_temps_left = np.zeros(100)
-arr_bearing_temps_right = np.zeros(100)
 
-db_bearing_temps = np.zeros([100, 100])
-arr_bearing_temps = np.zeros(100)
-arr_calc_bearing_temps = np.zeros(200)
-calc_bearing_temps = 0.0
-dir_left = False
-dir_right = False
-prev_dir_left = False
-prev_dir_right = False
 
-read_sensor_left = False
-read_sensor_right = False
+arr_bearing_temps_left_to_right = np.zeros(100)
+arr_bearing_temps_right_to_left = np.zeros(100)
+
+db_bearing_temps = np.zeros([100, 100]) # database set of bearing temperature raw value, array 100 x 100
+arr_bearing_temps = np.zeros(100) # data array of bearing temperature raw value in a wheel, array 1 x 100
+arr_calc_bearing_temps = np.zeros(200) # data array of calculated bearing temperature, array 1 x 100
+calc_bearing_temps = 0.0 # data value of calculated bearing temperature
+
+dir_left_to_right = False
+dir_right_to_left = False
+prev_dir_left_to_right = False
+prev_dir_right_to_left = False
+
+read_sensor_left_to_right = False
+read_sensor_right_to_left = False
 
 counting_wheel = 0
 prev_counting_wheel = 0
@@ -240,7 +257,7 @@ class ScreenSplash(MDScreen):
     
     def __init__(self, **kwargs):
         super(ScreenSplash, self).__init__(**kwargs)
-        Clock.schedule_interval(self.update_progress_bar, 0.01)
+        Clock.schedule_interval(self.update_progress_bar, 0.05)
 
     def update_progress_bar(self, *args):
         if (self.ids.progress_bar.value + 1) < 100:
@@ -305,14 +322,14 @@ class ScreenData(MDScreen):
         numbers = np.arange(1,101)       
         db_bearing_temps = np.zeros([100, 100])
         arr_calc_bearing_temps = np.zeros(100)
-        numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
-
+        # numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
+        numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
         self.data_tables.row_data = numbered_db.T.tolist()
 
     def open_data(self):
         global db_bearing_temps
         global arr_bearing_temps
-        global arr_bearing_temps_left, arr_bearing_temps_right
+        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
         self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
         self.manager_open = True
 
@@ -359,39 +376,41 @@ class ScreenData(MDScreen):
 
     def read_plc(self, dt):
         global plc
-        global arr_bearing_temps_left, arr_bearing_temps_right
-        global dir_left, dir_right
-        global prev_dir_left, prev_dir_right
-        global read_sensor_left, read_sensor_right
+        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
+        global dir_left_to_right, dir_right_to_left
+        global prev_dir_left_to_right, prev_dir_right_to_left
+        global read_sensor_left_to_right, read_sensor_right_to_left
         global counting_wheel, prev_counting_wheel
         global train_name, train_type, train_speed
         try:
-            DB_bytearray = plc.db_read(3,1754,8)
-            dir_left = snap7.util.get_bool(DB_bytearray, 0, 0)
-            dir_right = snap7.util.get_bool(DB_bytearray, 0, 1)
-
-            DB_bytearray = plc.db_read(3,1748,8)
-            read_sensor_left = snap7.util.get_bool(DB_bytearray, 0, 0)
-            read_sensor_right = snap7.util.get_bool(DB_bytearray, 0, 1)
-           
-            DB_bytearray = plc.db_read(3,1216,8)
-            counting_wheel = snap7.util.get_int(DB_bytearray, 0)
-
-            DB_bytearray = plc.db_read(3,1750,8)
-            train_speed = snap7.util.get_real(DB_bytearray, 0)
-
-            DB_bytearray = plc.db_read(3,1218,8)
-            train_type = snap7.util.get_string(DB_bytearray, 0)
-
-            DB_bytearray = plc.db_read(3,1476,8)
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
             train_name = snap7.util.get_string(DB_bytearray, 0)
 
-            # print("dir left:", dir_left, "dir right:" ,  dir_right, "sens A:", read_sensor_left, "sens B:" , read_sensor_right)
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_TYPE,BYTES_TO_READ_M)
+            train_type = snap7.util.get_string(DB_bytearray, 0)
 
-            if ((dir_right or dir_left) and not prev_dir_right and not prev_dir_left):
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_SPEED,BYTES_TO_READ_S)
+            train_speed = snap7.util.get_real(DB_bytearray, 0)
+
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_DIR,BYTES_TO_READ_S)
+            dir_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 0)
+            dir_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 1)
+
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_SENSOR,BYTES_TO_READ_S)
+            read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 0)
+            read_sensor_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 1)
+           
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
+            counting_wheel = snap7.util.get_int(DB_bytearray, 0)
+
+
+
+            # print("dir left:", dir_left_to_right, "dir right:" ,  dir_right_to_left, "sens A:", read_sensor_left_to_right, "sens B:" , read_sensor_right_to_left)
+
+            if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
                 Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_TABLE)
 
-            if ((prev_dir_right or prev_dir_left) and not dir_left and not dir_right):
+            if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
                 try:
                     self.auto_save_data()
                     self.reset_data()
@@ -401,17 +420,28 @@ class ScreenData(MDScreen):
                     print("An exception occurred:", e)
                     toast("error save data")
             
-            if (dir_right or dir_left):
-                var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, OFFSET1, BYTES_TO_READ1)
+            if (dir_left_to_right):
+                # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_L,BYTES_TO_READ_L)
+                # print(DB_bytearray)
+                # var1, db_bytearray1 = self.read_from_db(plc, DB_NUMBER, DB_OFFSET_TEMPERATURE_L, BYTES_TO_READ_L)
                 for i in range(0, 99):
-                    arr_bearing_temps_left[i] = snap7.util.get_real(db_bytearray1, i * 4)
+                    DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[i],BYTES_TO_READ_L)
+                    print(DB_bytearray)
+                    # arr_bearing_temps_left_to_right[i] = snap7.util.get_real(DB_bytearray, i * 4)
+                    arr_bearing_temps_left_to_right[i] = snap7.util.get_real(DB_bytearray, 0)
 
-                var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, OFFSET2, BYTES_TO_READ2)
+            if (dir_right_to_left):
+                # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_R,BYTES_TO_READ_L)
+                # print(DB_bytearray)
+                # var1, db_bytearray2 = self.read_from_db(plc, DB_NUMBER, DB_OFFSET_TEMPERATURE_R, BYTES_TO_READ_L)
                 for i in range(0, 99):
-                    arr_bearing_temps_right[i] = snap7.util.get_real(db_bytearray2, i * 4)
+                    DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[i],BYTES_TO_READ_L)
+                    print(DB_bytearray)
+                    # arr_bearing_temps_right_to_left[i] = snap7.util.get_real(DB_bytearray, i * 4)
+                    arr_bearing_temps_right_to_left[i] = snap7.util.get_real(DB_bytearray, 0)
 
-            prev_dir_right = dir_right
-            prev_dir_left = dir_left
+            prev_dir_right_to_left = dir_right_to_left
+            prev_dir_left_to_right = dir_left_to_right
             prev_counting_wheel = counting_wheel
             
         except RuntimeError as e:
@@ -444,7 +474,7 @@ class ScreenData(MDScreen):
     def auto_load(self, dt):
         global db_bearing_temps
         global arr_bearing_temps
-        global arr_bearing_temps_left, arr_bearing_temps_right
+        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
         global counting_wheel
         self.update_table()
         self.ids.text_bearing_num.text = str(counting_wheel)
@@ -455,30 +485,31 @@ class ScreenData(MDScreen):
         global arr_bearing_temps
         global calc_bearing_temps
         global arr_calc_bearing_temps        
-        global arr_bearing_temps_left, arr_bearing_temps_right
-        global dir_left, dir_right
-        global read_sensor_left, read_sensor_right
+        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
+        global dir_left_to_right, dir_right_to_left
+        global read_sensor_left_to_right, read_sensor_right_to_left
         global counting_wheel
 
         numbers = np.arange(1,101)
 
-        if (dir_left == True):
-            arr_bearing_temps = arr_bearing_temps_left
+        if (dir_left_to_right == True):
+            arr_bearing_temps = arr_bearing_temps_left_to_right
 
-        if (dir_right == True):
-            arr_bearing_temps = arr_bearing_temps_right
+        if (dir_right_to_left == True):
+            arr_bearing_temps = arr_bearing_temps_right_to_left
 
-        if((dir_left and read_sensor_left) or (dir_right and read_sensor_right)):        
+        if((dir_left_to_right and read_sensor_left_to_right) or (dir_right_to_left and read_sensor_right_to_left)):        
             db_bearing_temps[counting_wheel] = arr_bearing_temps
 
             self.finding_bearings(counting_wheel)
 
-            if (dir_left == True):
+            if (dir_left_to_right == True):
                 arr_calc_bearing_temps[counting_wheel*2] = calc_bearing_temps
 
-            if (dir_right == True):
+            if (dir_right_to_left == True):
                 arr_calc_bearing_temps[(counting_wheel*2)+1] = calc_bearing_temps
                     
+            # numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
             numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
             try:
                 self.data_tables.row_data = numbered_db.T.tolist()
@@ -487,6 +518,7 @@ class ScreenData(MDScreen):
                 print("An exception occurred:", e)
         
         else:
+            # numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
             numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
             try:
                 self.data_tables.row_data = numbered_db.T.tolist()
@@ -613,7 +645,7 @@ class ScreenDashboard(MDScreen):
         Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_DISPLAY)
 
     def auto_load(self, dt):
-        global dir_left, dir_right
+        global dir_left_to_right, dir_right_to_left
         global train_name, train_type, train_speed
 
         screenData = self.screen_manager.get_screen('screen_data')
@@ -627,16 +659,16 @@ class ScreenDashboard(MDScreen):
         self.ids.lb_train_type.text = "Jenis Sarana: " + train_type
         screenData.ids.lb_train_type.text = "Jenis Sarana: " + train_type
 
-        self.ids.lb_train_speed.text = "Kecepatan: " + str(train_speed)
-        screenData.ids.lb_train_speed.text = "Kecepatan: " + str(train_speed)
+        self.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
+        screenData.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
 
-        if (dir_left == True):
+        if (dir_left_to_right == True):
             self.move_left()
             
-        if (dir_right == True):
+        if (dir_right_to_left == True):
             self.move_right()
 
-        if (dir_right == False and dir_left == False):
+        if (dir_right_to_left == False and dir_left_to_right == False):
             self.standby()
 
     def move_left(self):
