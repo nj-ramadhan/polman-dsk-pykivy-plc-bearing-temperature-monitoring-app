@@ -423,13 +423,13 @@ class ScreenData(MDScreen):
                     toast("error save data")
             
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
-            if (dir_left_to_right):
-                for i in range(0, 49):
-                    arr_bearing_temps_left_to_right[i] = snap7.util.get_real(DB_bytearray, i * 4)
+            # if (dir_left_to_right):
+            for i in range(0, 49):
+                arr_bearing_temps_left_to_right[i] = snap7.util.get_real(DB_bytearray, i * 4)
             
-            if (dir_right_to_left):
-                for i in range(0, 49):
-                    arr_bearing_temps_right_to_left[i] = snap7.util.get_real(DB_bytearray, i * 4)
+            # if (dir_right_to_left):
+            for i in range(0, 49):
+                arr_bearing_temps_right_to_left[i] = snap7.util.get_real(DB_bytearray, i * 4)
 
                 # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_L,BYTES_TO_READ_L)
                 # print(DB_bytearray)
@@ -450,7 +450,7 @@ class ScreenData(MDScreen):
                 # arr_bearing_temps_left_to_right[i] = snap7.util.get_real(DB_bytearray, i * 4)
 
             # print(arr_bearing_temps_right_to_left)
-            # print(arr_bearing_temps_left_to_right)
+            # print(db_bearing_temps)
 
             prev_dir_right_to_left = dir_right_to_left
             prev_dir_left_to_right = dir_left_to_right
