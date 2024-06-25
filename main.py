@@ -13,7 +13,6 @@ from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.properties import ObjectProperty
-from kivy.properties import NumericProperty
 from datetime import datetime
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -21,15 +20,8 @@ import matplotlib.colors as mcolors
 from scipy.signal import find_peaks
 import numpy as np
 import os
-import minimalmodbus
-import time
-import serial
-from serial.tools import list_ports
-import openpyxl
 import snap7
 import numpy as np
-import threading
-import time
 import locale
 
 locale.setlocale(locale.LC_TIME, "id_ID")
