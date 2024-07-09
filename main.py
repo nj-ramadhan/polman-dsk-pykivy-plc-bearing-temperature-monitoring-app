@@ -190,7 +190,7 @@ TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
 BEARING_TEMP_DATA = 100
 NUMBER_OF_BEARINGS = 100
 
-BEARING_TEMP_MIN = 60.5
+BEARING_TEMP_MIN = 42.5
 
 # Define constants for PLC connection and database read
 PLC_IP = '192.168.0.2'
@@ -244,6 +244,7 @@ read_sensor_right_to_left = False
 
 counting_wheel = 0
 prev_counting_wheel = 0
+counting_wheel_max = 0
 
 train_name = ""
 train_type = ""
@@ -372,18 +373,13 @@ class ScreenData(MDScreen):
         plc.connect(PLC_IP, RACK, SLOT)
         return plc
 
-    def read_from_db(self, plc, db_number, offset, bytes_to_read):
-        db_bytearray = plc.db_read(db_number, offset, bytes_to_read)
-        var1 = snap7.util.get_real(db_bytearray, 0)
-        return var1, db_bytearray
-
     def read_plc(self, dt):
         global plc
         global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
         global dir_left_to_right, dir_right_to_left
         global prev_dir_left_to_right, prev_dir_right_to_left
         global read_sensor_left_to_right, read_sensor_right_to_left
-        global counting_wheel, prev_counting_wheel
+        global counting_wheel, prev_counting_wheel, counting_wheel_max
         global train_name, train_type, train_speed
         try:
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
@@ -404,7 +400,7 @@ class ScreenData(MDScreen):
             read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
            
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
-            counting_wheel = snap7.util.get_int(DB_bytearray, 0)
+            counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
 
             # print("dir left:", dir_left_to_right, "dir right:" ,  dir_right_to_left, "sens A:", read_sensor_left_to_right, "sens B:" , read_sensor_right_to_left)
             # print(counting_wheel)
@@ -659,7 +655,8 @@ class ScreenDashboard(MDScreen):
     def auto_load(self, dt):
         global dir_left_to_right, dir_right_to_left
         global train_name, train_type, train_speed
-
+        global counting_wheel, counting_wheel_max
+        
         screenData = self.screen_manager.get_screen('screen_data')
 
         self.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
@@ -671,8 +668,17 @@ class ScreenDashboard(MDScreen):
         self.ids.lb_train_type.text = "Jenis Sarana: " + train_type
         screenData.ids.lb_train_type.text = "Jenis Sarana: " + train_type
 
+        self.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max) + ", Kalkulasi Roda No " + str(counting_wheel)
+        screenData.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max) + ", Kalkulasi Roda No " + str(counting_wheel)
+
         self.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
         screenData.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
+
+        if (dir_left_to_right == True or dir_right_to_left == True):
+            text = f"Jumlah Roda Terdeteksi: {counting_wheel_max}, Melakukan Perhitungan Pada Roda ke {counting_wheel}"
+            print(text)
+            if (counting_wheel < counting_wheel_max):
+                counting_wheel += 1
 
         if (dir_left_to_right == True):
             self.move_left_to_right()
@@ -742,6 +748,9 @@ class ScreenDashboard(MDScreen):
 
         self.ids.lb_train_type.text = "Tidak ada kereta melintas"
         screenData.ids.lb_train_type.text = "Tidak ada kereta melintas"
+
+        self.ids.lb_train_wheel.text = ""
+        screenData.ids.lb_train_wheel.text = ""
 
         self.ids.lb_train_speed.text = ""
         screenData.ids.lb_train_speed.text = ""
