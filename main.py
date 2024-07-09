@@ -54,7 +54,7 @@ colors = {
     },
 }
 
-field_pos_left = [
+field_pos_right_to_left = [
     [0.242,0.790],[0.242,0.990], #lokomotif
     [0.262,0.790],[0.262,0.990],
     [0.290,0.790],[0.290,0.990],
@@ -118,7 +118,7 @@ field_pos_left = [
     [0.764,0.010],[0.764,0.205],
 ]
 
-field_pos_right = [
+field_pos_left_to_right = [
     [0.750,0.990],[0.750,0.790], #lokomotif
     [0.730,0.990],[0.730,0.790],
     [0.700,0.990],[0.700,0.790],
@@ -669,7 +669,7 @@ class ScreenDashboard(MDScreen):
             self.standby()
 
     def move_right_to_left(self):
-        global field_pos_left
+        global field_pos_right_to_left
         global arr_calc_bearing_temps
         screenData = self.screen_manager.get_screen('screen_data')
 
@@ -679,13 +679,13 @@ class ScreenDashboard(MDScreen):
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(1,101):
-                field = MDLabel(id=f'T_{i}', 
+            for i in range(0,99):
+                field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text= f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i-1] <= BEARING_TEMP_MIN) else 'Error' ,
+                                text= f'{np.round(arr_calc_bearing_temps[i+1],1)}', #-> Untuk Menampilkan data suhu bearing
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i+1] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_left[i-1][0]),'center_y': (field_pos_left[i-1][1])}
+                                pos_hint= {'center_x': (field_pos_right_to_left[i-1][0]),'center_y': (field_pos_right_to_left[i-1][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -694,7 +694,7 @@ class ScreenDashboard(MDScreen):
             toast('error open screen')
 
     def move_left_to_right(self):
-        global field_pos_right
+        global field_pos_left_to_right
         global arr_calc_bearing_temps
         screenData = self.screen_manager.get_screen('screen_data')
 
@@ -703,13 +703,13 @@ class ScreenDashboard(MDScreen):
         screenData.ids.lb_train_dir.text = "dari arah kiri ke kanan"
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(1,101):
-                field = MDLabel(id=f'T_{i}', 
+            for i in range(0,99):
+                field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text=f'{np.round(arr_calc_bearing_temps[i-1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i-1] <= BEARING_TEMP_MIN) else 'Error' ,
+                                text=f'{np.round(arr_calc_bearing_temps[i+1],1)}', #-> Untuk Menampilkan data suhu bearing
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i+1] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_right[i-1][0]),'center_y': (field_pos_right[i-1][1])}
+                                pos_hint= {'center_x': (field_pos_left_to_right[i-1][0]),'center_y': (field_pos_left_to_right[i-1][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
