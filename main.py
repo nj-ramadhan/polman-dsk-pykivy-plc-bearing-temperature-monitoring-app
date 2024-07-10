@@ -231,7 +231,7 @@ arr_bearing_temps_right_to_left = np.zeros(100)
 
 db_bearing_temps = np.zeros([100, 100]) # database set of bearing temperature raw value, array 100 x 100
 arr_bearing_temps = np.zeros(100) # data array of bearing temperature raw value in a wheel, array 1 x 100
-arr_calc_bearing_temps = np.zeros(200) # data array of calculated bearing temperature, array 1 x 100
+arr_calc_bearing_temps = np.zeros(100) # data array of calculated bearing temperature, array 1 x 100
 calc_bearing_temps = 0.0 # data value of calculated bearing temperature
 
 dir_left_to_right = False
@@ -382,6 +382,9 @@ class ScreenData(MDScreen):
         global read_sensor_left_to_right, read_sensor_right_to_left
         global counting_wheel, prev_counting_wheel, counting_wheel_max
         global train_name, train_type, train_speed
+
+        ScreenDashboard = self.screen_manager.get_screen('screen_dashboard')
+
         try:
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
             train_name = snap7.util.get_string(DB_bytearray, 0)
@@ -412,6 +415,7 @@ class ScreenData(MDScreen):
             if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
                 try:
                     self.save_data()
+                    ScreenDashboard.save_screen()
                     self.reset_data()
                     Clock.unschedule(self.auto_load)
 
@@ -564,58 +568,49 @@ class ScreenData(MDScreen):
         global arr_bearing_temps
 
         try:
-            # save history data
+            # name initialization
             name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
+            name_file_dashboard = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
             disk = cwd + name_file_now
+            disk_dashboard = cwd_dashboard + name_file_dashboard
 
             header_text = "Roda 1"
             for i in range(2,101):
                 header_text = header_text + ';' + "Roda " + str(i) 
             
+            # save history data to default folder 
             with open(disk,"wb") as f:
                 np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
             
-            name_file_now = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.csv")
-            cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
-            disk = cwd + name_file_now
-
-            header_text = "Roda 1"
-            for i in range(2,101):
-                header_text = header_text + ';' + "Roda " + str(i) 
-            
-            with open(disk,"wb") as f:
+            # save history data to dashboard folder
+            with open(disk_dashboard,"wb") as f:
                 np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
 
-            # save calculated data
-            name_file_now = datetime.now().strftime("\data\calculation_result_%d_%m_%Y_%H_%M_%S.csv")
-            cwd = os.getcwd()
+            # name initialization
+            name_file_now = datetime.now().strftime("\data\calc_result_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_dashboard = datetime.now().strftime("calc_result_%d_%m_%Y_%H_%M_%S.csv")
             disk = cwd + name_file_now
+            disk_dashboard = cwd_dashboard + name_file_dashboard
 
-            header_text = "Roda 1"
-            for i in range(2,101):
-                header_text = header_text + ';' + "Roda " + str(i) 
+            calculated_data = np.vstack((arr_calc_bearing_temps, np.empty([2,100])))
+            print(calculated_data)
             
+            # save calculated data to default folder  
             with open(disk,"wb") as f:
-                np.savetxt(f, arr_calc_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
+                np.savetxt(f, calculated_data, fmt="%.2f",delimiter=";",header=header_text)
 
-            name_file_now = datetime.now().strftime("calculation_result_%d_%m_%Y_%H_%M_%S.csv")
-            cwd = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
-            disk = cwd + name_file_now
-
-            header_text = "Roda 1"
-            for i in range(2,101):
-                header_text = header_text + ';' + "Roda " + str(i) 
-            
-            with open(disk,"wb") as f:
-                np.savetxt(f, arr_calc_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
+            # save calculated data to dashboard folder          
+            with open(disk_dashboard,"wb") as f:
+                np.savetxt(f, calculated_data, fmt="%.2f",delimiter=";",header=header_text)
 
             print("sucessfully save data")
             toast("sucessfully save data")
 
-        except:
+        except Exception as e:
             print("error saving data")
-            toast("error saving data")
+            toast(f"error saving data {e}")
 
     def screen_dashboard(self):
         self.screen_manager.current = 'screen_dashboard'
@@ -736,6 +731,26 @@ class ScreenDashboard(MDScreen):
 
         self.ids.lb_train_dir.text = ""
         screenData.ids.lb_train_dir.text = ""
+
+    def save_screen(self):
+        try:
+            # save screen shot to default folder
+            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.png")
+            name_file_dashboard = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.png")
+            cwd = os.getcwd()
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
+            disk = cwd + name_file_now
+            disk_dashboard = cwd_dashboard + name_file_dashboard
+
+            self.ids.layout_dashboard.export_to_png(disk)
+            self.ids.layout_dashboard.export_to_png(disk_dashboard)
+
+            print("sucessfully save screenshot")
+            toast("sucessfully save screenshot")
+
+        except:
+            print("error saving screenshot")
+            toast("error saving screenshot")
 
     def screen_dashboard(self):
         self.screen_manager.current = 'screen_dashboard'
