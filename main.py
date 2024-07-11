@@ -501,17 +501,19 @@ class ScreenData(MDScreen):
         # print(db_bearing_temps_trimmed)
         counting_wheel_max = db_bearing_temps_trimmed.size
 
-
         if (dir_right_to_left == True):
-            arr_calc_bearing_temps[(counting_wheel)*2] = calc_bearing_temps
+            arr_calc_bearing_temps[(counting_wheel - 1)*2] = calc_bearing_temps
 
         if (dir_left_to_right == True):
-            arr_calc_bearing_temps[((counting_wheel)*2)+1] = calc_bearing_temps
+            arr_calc_bearing_temps[((counting_wheel - 1)*2)+1] = calc_bearing_temps
 
         if (dir_left_to_right == True or dir_right_to_left == True):
             if (counting_wheel < counting_wheel_max):
                 self.finding_bearings(counting_wheel)
                 counting_wheel += 1
+        
+        print(arr_calc_bearing_temps)
+
 
         # if((dir_left_to_right and read_sensor_left_to_right) or (dir_right_to_left and read_sensor_right_to_left)): 
         numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
@@ -678,10 +680,10 @@ class ScreenDashboard(MDScreen):
             for i in range(0,99):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text= f'{np.round(arr_calc_bearing_temps[i+1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i+1] <= BEARING_TEMP_MIN) else 'Error' ,
+                                text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_right_to_left[i-1][0]),'center_y': (field_pos_right_to_left[i-1][1])}
+                                pos_hint= {'center_x': (field_pos_right_to_left[i][0]),'center_y': (field_pos_right_to_left[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -702,10 +704,10 @@ class ScreenDashboard(MDScreen):
             for i in range(0,99):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text=f'{np.round(arr_calc_bearing_temps[i+1],1)}', #-> Untuk Menampilkan data suhu bearing
-                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i+1] <= BEARING_TEMP_MIN) else 'Error' ,
+                                text=f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
+                                theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_left_to_right[i-1][0]),'center_y': (field_pos_left_to_right[i-1][1])}
+                                pos_hint= {'center_x': (field_pos_left_to_right[i][0]),'center_y': (field_pos_left_to_right[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -736,7 +738,7 @@ class ScreenDashboard(MDScreen):
     def save_screen(self):
         try:
             # save screen shot to default folder
-            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.png")
+            name_file_now = datetime.now().strftime("\screenshot\%d_%m_%Y_%H_%M_%S.png")
             name_file_dashboard = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.png")
             cwd = os.getcwd()
             cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
