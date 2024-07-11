@@ -416,6 +416,7 @@ class ScreenData(MDScreen):
                 try:
                     self.save_data()
                     ScreenDashboard.save_screen()
+                    counting_wheel_max = 0
                     self.reset_data()
                     Clock.unschedule(self.auto_load)
 
