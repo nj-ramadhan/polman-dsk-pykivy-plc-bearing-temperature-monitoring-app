@@ -54,7 +54,69 @@ colors = {
     },
 }
 
-field_pos_right_to_left = [
+field_pos_small_right_to_left = [
+    [0.242,0.790],[0.242,0.990], #lokomotif
+    [0.262,0.790],[0.262,0.990],
+    [0.338,0.790],[0.338,0.990],
+    [0.358,0.790],[0.358,0.990],
+
+    [0.440,0.790],[0.440,0.990], #gerbong 1
+    [0.460,0.790],[0.460,0.990],
+    [0.534,0.790],[0.534,0.990],
+    [0.554,0.790],[0.554,0.990],
+
+    [0.650,0.790],[0.650,0.990], #gerbong 2
+    [0.670,0.790],[0.670,0.990],
+    [0.744,0.790],[0.744,0.990],
+    [0.764,0.790],[0.764,0.990],
+
+    [0.229,0.530],[0.229,0.730], #gerbong 3
+    [0.251,0.530],[0.251,0.730],
+    [0.324,0.530],[0.324,0.730],
+    [0.346,0.530],[0.346,0.730],
+
+    [0.439,0.530],[0.439,0.730], #gerbong 4
+    [0.461,0.530],[0.461,0.730],
+    [0.534,0.530],[0.534,0.730],
+    [0.556,0.530],[0.556,0.730],
+
+    [0.650,0.530],[0.650,0.730], #gerbong 5
+    [0.670,0.530],[0.670,0.730],
+    [0.744,0.530],[0.744,0.730],
+    [0.764,0.530],[0.764,0.730],
+
+    [0.229,0.270],[0.229,0.470], #gerbong 6
+    [0.251,0.270],[0.251,0.470],
+    [0.324,0.270],[0.324,0.470],
+    [0.346,0.270],[0.346,0.470],
+
+    [0.439,0.270],[0.439,0.470], #gerbong 7
+    [0.461,0.270],[0.461,0.470],
+    [0.534,0.270],[0.534,0.470],
+    [0.556,0.270],[0.556,0.470],
+
+    [0.650,0.270],[0.650,0.470], #gerbong 8
+    [0.670,0.270],[0.670,0.470],
+    [0.744,0.270],[0.744,0.470],
+    [0.764,0.270],[0.764,0.470],
+
+    [0.229,0.010],[0.229,0.205], #gerbong 9
+    [0.251,0.010],[0.251,0.205],
+    [0.324,0.010],[0.324,0.205],
+    [0.346,0.010],[0.346,0.205],
+
+    [0.439,0.010],[0.439,0.205], #gerbong 10
+    [0.461,0.010],[0.461,0.205],
+    [0.534,0.010],[0.534,0.205],
+    [0.556,0.010],[0.556,0.206],
+
+    [0.650,0.010],[0.650,0.205], #gerbong 11
+    [0.670,0.010],[0.670,0.205],
+    [0.744,0.010],[0.744,0.205],
+    [0.764,0.010],[0.764,0.205],
+]
+
+field_pos_large_right_to_left = [
     [0.242,0.790],[0.242,0.990], #lokomotif
     [0.262,0.790],[0.262,0.990],
     [0.290,0.790],[0.290,0.990],
@@ -118,7 +180,69 @@ field_pos_right_to_left = [
     [0.764,0.010],[0.764,0.205],
 ]
 
-field_pos_left_to_right = [
+field_pos_small_left_to_right = [
+    [0.750,0.990],[0.750,0.790], #lokomotif
+    [0.730,0.990],[0.730,0.790],
+    [0.650,0.990],[0.650,0.790],
+    [0.630,0.990],[0.630,0.790],
+
+    [0.552,0.990],[0.552,0.790], #gerbong 1
+    [0.530,0.990],[0.530,0.790],
+    [0.455,0.990],[0.455,0.790],
+    [0.433,0.990],[0.433,0.790],
+
+    [0.340,0.990],[0.340,0.790], #gerbong 2
+    [0.318,0.990],[0.318,0.790],
+    [0.245,0.990],[0.245,0.790],
+    [0.223,0.990],[0.223,0.790],
+
+    [0.762,0.730],[0.762,0.530], #gerbong 3
+    [0.740,0.730],[0.740,0.530],
+    [0.667,0.730],[0.667,0.530],
+    [0.645,0.730],[0.645,0.530],
+
+    [0.552,0.730],[0.552,0.530], #gerbong 4
+    [0.530,0.730],[0.530,0.530],
+    [0.455,0.730],[0.455,0.530],
+    [0.433,0.730],[0.433,0.530],
+
+    [0.340,0.730],[0.340,0.530], #gerbong 5
+    [0.318,0.730],[0.318,0.530],
+    [0.245,0.730],[0.245,0.530],
+    [0.223,0.730],[0.223,0.530],
+
+    [0.762,0.470],[0.762,0.270], #gerbong 6
+    [0.740,0.470],[0.740,0.270],
+    [0.667,0.470],[0.667,0.270],
+    [0.645,0.470],[0.645,0.270],
+
+    [0.552,0.470],[0.552,0.270], #gerbong 7
+    [0.530,0.470],[0.530,0.270],
+    [0.455,0.470],[0.455,0.270],
+    [0.433,0.470],[0.433,0.270],
+
+    [0.340,0.470],[0.340,0.270], #gerbong 8
+    [0.318,0.470],[0.318,0.270],
+    [0.245,0.470],[0.245,0.270],
+    [0.223,0.470],[0.223,0.270],
+
+    [0.762,0.205],[0.762,0.010], #gerbong 9
+    [0.740,0.205],[0.740,0.010],
+    [0.667,0.205],[0.667,0.010],
+    [0.645,0.205],[0.645,0.010],
+
+    [0.552,0.205],[0.552,0.010], #gerbong 10
+    [0.530,0.205],[0.530,0.010],
+    [0.455,0.205],[0.455,0.010],
+    [0.433,0.205],[0.433,0.010],
+
+    [0.340,0.205],[0.340,0.010], #gerbong 11
+    [0.318,0.205],[0.318,0.010],
+    [0.245,0.205],[0.245,0.010],
+    [0.223,0.205],[0.223,0.010],
+]
+
+field_pos_large_left_to_right = [
     [0.750,0.990],[0.750,0.790], #lokomotif
     [0.730,0.990],[0.730,0.790],
     [0.700,0.990],[0.700,0.790],
@@ -243,12 +367,13 @@ read_sensor_left_to_right = False
 read_sensor_right_to_left = False
 
 counting_wheel = 0
-prev_counting_wheel = 0
 counting_wheel_max = 0
 
 train_name = ""
-train_type = ""
+carriage_type = ""
 train_speed = 0.0
+
+train_type = 0 # feeder / small = 0, argo / large = 1 
 
 flag_autosave_data = False
 flag_autosave_graph = False
@@ -380,8 +505,8 @@ class ScreenData(MDScreen):
         global dir_left_to_right, dir_right_to_left
         global prev_dir_left_to_right, prev_dir_right_to_left
         global read_sensor_left_to_right, read_sensor_right_to_left
-        global counting_wheel, prev_counting_wheel, counting_wheel_max
-        global train_name, train_type, train_speed
+        global counting_wheel_max
+        global train_name, carriage_type, train_speed, train_type
 
         ScreenDashboard = self.screen_manager.get_screen('screen_dashboard')
 
@@ -390,7 +515,7 @@ class ScreenData(MDScreen):
             train_name = snap7.util.get_string(DB_bytearray, 0)
 
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_TYPE,BYTES_TO_READ_M)
-            train_type = snap7.util.get_string(DB_bytearray, 0)
+            carriage_type = snap7.util.get_string(DB_bytearray, 0)
 
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_SPEED,BYTES_TO_READ_S)
             train_speed = snap7.util.get_real(DB_bytearray, 0)
@@ -403,11 +528,10 @@ class ScreenData(MDScreen):
             read_sensor_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 0)
             read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
            
-            # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
-            # counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
+            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
+            counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
 
-            # print("dir left:", dir_left_to_right, "dir right:" ,  dir_right_to_left, "sens A:", read_sensor_left_to_right, "sens B:" , read_sensor_right_to_left)
-            # print(counting_wheel)
+            train_type = 1 if counting_wheel_max > 16 else 0
 
             if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
                 Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_TABLE)
@@ -416,7 +540,6 @@ class ScreenData(MDScreen):
                 try:
                     self.save_data()
                     ScreenDashboard.save_screen()
-                    counting_wheel_max = 0
                     self.reset_data()
                     Clock.unschedule(self.auto_load)
 
@@ -438,7 +561,6 @@ class ScreenData(MDScreen):
                        
             prev_dir_right_to_left = dir_right_to_left
             prev_dir_left_to_right = dir_left_to_right
-            prev_counting_wheel = counting_wheel
             
         except RuntimeError as e:
             print(f"Error reading PLC data: {e}")
@@ -637,7 +759,7 @@ class ScreenDashboard(MDScreen):
 
     def auto_load(self, dt):
         global dir_left_to_right, dir_right_to_left
-        global train_name, train_type, train_speed
+        global train_name, carriage_type, train_speed
         global counting_wheel, counting_wheel_max
         
         screenData = self.screen_manager.get_screen('screen_data')
@@ -648,8 +770,8 @@ class ScreenDashboard(MDScreen):
         self.ids.lb_train_name.text = "Kereta: " + train_name
         screenData.ids.lb_train_name.text = "Kereta: " + train_name
 
-        self.ids.lb_train_type.text = "Jenis Sarana: " + train_type
-        screenData.ids.lb_train_type.text = "Jenis Sarana: " + train_type
+        self.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
+        screenData.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
 
         self.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
         screenData.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
@@ -669,55 +791,75 @@ class ScreenDashboard(MDScreen):
     def move_right_to_left(self):
         global field_pos_right_to_left
         global arr_calc_bearing_temps
+        global train_type, train_name
+        global counting_wheel_max
+
         screenData = self.screen_manager.get_screen('screen_data')
 
-        self.ids.background_image.source = 'asset/kereta_kiri.jpg'
+        if train_type == 1:
+            self.ids.background_image.source = 'asset/train_large_right_to_left.jpg'
+            train_name = "Argo"
+        else:
+            self.ids.background_image.source = 'asset/train_small_right_to_left.jpg'
+            train_name = "Feeder"
+
         self.ids.lb_train_dir.text = "dari arah kanan ke kiri"
         screenData.ids.lb_train_dir.text = "dari arah kanan ke kiri"
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0,99):
+            for i in range(0,counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_right_to_left[i][0]),'center_y': (field_pos_right_to_left[i][1])}
+                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 1 else (field_pos_small_right_to_left[i][0]),
+                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 1 else (field_pos_small_right_to_left[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
         except Exception as e:
             print("An exception occurred:", e)
-            toast('error open screen')
+            toast('error open screen')      
 
     def move_left_to_right(self):
         global field_pos_left_to_right
         global arr_calc_bearing_temps
+        global train_type, train_name
+
         screenData = self.screen_manager.get_screen('screen_data')
 
-        self.ids.background_image.source = 'asset/kereta_kanan.jpg'
+        if train_type == 1:
+            self.ids.background_image.source = 'asset/train_large_left_to_right.jpg'
+            train_name = "Argo"
+        else:
+            self.ids.background_image.source = 'asset/train_small_left_to_right.jpg'
+            train_name = "Feeder"
+
         self.ids.lb_train_dir.text = "dari arah kiri ke kanan"
         screenData.ids.lb_train_dir.text = "dari arah kiri ke kanan"
+
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0,99):
+            for i in range(0,counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
-                                text=f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
+                                text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_left_to_right[i][0]),'center_y': (field_pos_left_to_right[i][1])}
+                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 1 else (field_pos_small_right_to_left[i][0]),
+                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 1 else (field_pos_small_right_to_left[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
         except Exception as e:
             print("An exception occurred:", e)
-            toast('error open screen')
+            toast('error open screen')   
 
     def standby(self):
         screenData = self.screen_manager.get_screen('screen_data')
-        self.ids.background_image.source = 'asset/kereta.png'
+        self.ids.background_image.source = 'asset/train_standby.png'
         self.ids.layout_text_temps.clear_widgets()
 
         self.ids.lb_train_name.text = "Standby"
