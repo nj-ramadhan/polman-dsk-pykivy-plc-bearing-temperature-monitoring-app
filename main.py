@@ -508,8 +508,6 @@ class ScreenData(MDScreen):
         global counting_wheel_max
         global train_name, carriage_type, train_speed, train_type
 
-        ScreenDashboard = self.screen_manager.get_screen('screen_dashboard')
-
         try:
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
             train_name = snap7.util.get_string(DB_bytearray, 0)
@@ -539,7 +537,6 @@ class ScreenData(MDScreen):
             if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
                 try:
                     self.save_data()
-                    ScreenDashboard.save_screen()
                     self.reset_data()
                     Clock.unschedule(self.auto_load)
 
@@ -692,6 +689,8 @@ class ScreenData(MDScreen):
         global db_bearing_temps
         global arr_bearing_temps
 
+        ScreenDashboard = self.screen_manager.get_screen('screen_dashboard')
+
         try:
             # name initialization
             name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
@@ -729,6 +728,9 @@ class ScreenData(MDScreen):
             # save calculated data to dashboard folder          
             with open(disk_dashboard,"wb") as f:
                 np.savetxt(f, calculated_data, fmt="%.2f",delimiter=";",header=header_text)
+
+            # save screenshot
+            ScreenDashboard.save_screen()
 
             print("sucessfully save data")
             toast("sucessfully save data")
