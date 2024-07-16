@@ -478,7 +478,6 @@ class ScreenData(MDScreen):
             # print(data_set)
             db_bearing_temps = data_set.T
             arr_bearing_temps = db_bearing_temps[counting_wheel]
-            print(db_bearing_temps)
 
             self.update_table()
             self.update_graph()
@@ -614,17 +613,17 @@ class ScreenData(MDScreen):
         global counting_wheel, counting_wheel_max
 
         numbers = np.arange(1,101)
-        db_bearing_temps[counting_wheel] = arr_bearing_temps
-        db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
-        # print(db_bearing_temps_trimmed)
-        # print(db_bearing_temps_trimmed)
-        counting_wheel_max = db_bearing_temps_trimmed.size
+        # db_bearing_temps[counting_wheel] = arr_bearing_temps
+        # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
+        # # print(db_bearing_temps_trimmed)
+        # # print(db_bearing_temps_trimmed)
+        # counting_wheel_max = db_bearing_temps_trimmed.size
 
         if (dir_right_to_left == True):
-            arr_calc_bearing_temps[(counting_wheel - 1)*2] = calc_bearing_temps
+            arr_calc_bearing_temps[(counting_wheel-1)*2] = calc_bearing_temps
 
         if (dir_left_to_right == True):
-            arr_calc_bearing_temps[((counting_wheel - 1)*2)+1] = calc_bearing_temps
+            arr_calc_bearing_temps[((counting_wheel-1) * 2) + 1] = calc_bearing_temps
 
         if (dir_left_to_right == True or dir_right_to_left == True):
             if (counting_wheel < counting_wheel_max):
@@ -693,10 +692,12 @@ class ScreenData(MDScreen):
 
         try:
             # name initialization
-            name_file_now = datetime.now().strftime("\data\%d_%m_%Y_%H_%M_%S.csv")
-            name_file_dashboard = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.csv")
+            ScreenDashboard.save_screen()
+
+            name_file_now = datetime.now().strftime("\\data\\raw_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_dashboard = datetime.now().strftime("data\\raw_%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data\\'
             disk = cwd + name_file_now
             disk_dashboard = cwd_dashboard + name_file_dashboard
 
@@ -713,8 +714,8 @@ class ScreenData(MDScreen):
                 np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
 
             # name initialization
-            name_file_now = datetime.now().strftime("\data\calc_result_%d_%m_%Y_%H_%M_%S.csv")
-            name_file_dashboard = datetime.now().strftime("calc_result_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_now = datetime.now().strftime("\\data\\calc_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_dashboard = datetime.now().strftime("data\\calc_%d_%m_%Y_%H_%M_%S.csv")
             disk = cwd + name_file_now
             disk_dashboard = cwd_dashboard + name_file_dashboard
 
@@ -730,7 +731,6 @@ class ScreenData(MDScreen):
                 np.savetxt(f, calculated_data, fmt="%.2f",delimiter=";",header=header_text)
 
             # save screenshot
-            ScreenDashboard.save_screen()
 
             print("sucessfully save data")
             toast("sucessfully save data")
@@ -799,10 +799,10 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         if train_type == 1:
-            self.ids.background_image.source = 'asset/train_large_right_to_left.jpg'
+            self.ids.background_image.source = 'asset/train_large_right_to_left.png'
             train_name = "Argo"
         else:
-            self.ids.background_image.source = 'asset/train_small_right_to_left.jpg'
+            self.ids.background_image.source = 'asset/train_small_right_to_left.png'
             train_name = "Feeder"
 
         self.ids.lb_train_dir.text = "dari arah kanan ke kiri"
@@ -810,7 +810,7 @@ class ScreenDashboard(MDScreen):
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0,counting_wheel_max):
+            for i in range(0, 99):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
@@ -833,10 +833,10 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         if train_type == 1:
-            self.ids.background_image.source = 'asset/train_large_left_to_right.jpg'
+            self.ids.background_image.source = 'asset/train_large_left_to_right.png'
             train_name = "Argo"
         else:
-            self.ids.background_image.source = 'asset/train_small_left_to_right.jpg'
+            self.ids.background_image.source = 'asset/train_small_left_to_right.png'
             train_name = "Feeder"
 
         self.ids.lb_train_dir.text = "dari arah kiri ke kanan"
@@ -844,7 +844,7 @@ class ScreenDashboard(MDScreen):
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0,counting_wheel_max):
+            for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
@@ -882,10 +882,10 @@ class ScreenDashboard(MDScreen):
     def save_screen(self):
         try:
             # save screen shot to default folder
-            name_file_now = datetime.now().strftime("\screenshot\%d_%m_%Y_%H_%M_%S.png")
-            name_file_dashboard = datetime.now().strftime("%d_%m_%Y_%H_%M_%S.png")
+            name_file_now = datetime.now().strftime("\\screenshot\\%d_%m_%Y_%H_%M_%S.png")
+            name_file_dashboard = datetime.now().strftime("screenshot\\%d_%m_%Y_%H_%M_%S.png")
             cwd = os.getcwd()
-            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\HISTORY_DATA\\'
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data\\'
             disk = cwd + name_file_now
             disk_dashboard = cwd_dashboard + name_file_dashboard
 
@@ -920,7 +920,8 @@ class BearingTemperatureMonitoringApp(MDApp):
         self.icon = "asset\logo_kai.png" #for windows os
         Window.fullscreen = 'auto'
         Window.borderless = True
-        Window.allow_screensaver = True
+        # Window.size = (1920, 1080)
+        # Window.allow_screensaver = True
 
         Builder.load_file('main.kv')
         return RootScreen()
