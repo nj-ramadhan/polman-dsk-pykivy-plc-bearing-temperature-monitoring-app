@@ -55,65 +55,25 @@ colors = {
 }
 
 field_pos_small_right_to_left = [
-    [0.242,0.790],[0.242,0.990], #lokomotif
-    [0.262,0.790],[0.262,0.990],
-    [0.338,0.790],[0.338,0.990],
-    [0.358,0.790],[0.358,0.990],
+    [0.252,0.790],[0.252,0.990], #lokomotif
+    [0.272,0.790],[0.272,0.990],
+    [0.343,0.790],[0.343,0.990],
+    [0.363,0.790],[0.363,0.990],
 
     [0.440,0.790],[0.440,0.990], #gerbong 1
     [0.460,0.790],[0.460,0.990],
     [0.534,0.790],[0.534,0.990],
     [0.554,0.790],[0.554,0.990],
 
-    [0.650,0.790],[0.650,0.990], #gerbong 2
-    [0.670,0.790],[0.670,0.990],
-    [0.744,0.790],[0.744,0.990],
-    [0.764,0.790],[0.764,0.990],
+    [0.645,0.790],[0.645,0.990], #gerbong 2
+    [0.665,0.790],[0.665,0.990],
+    [0.754,0.790],[0.754,0.990],
+    [0.774,0.790],[0.774,0.990],
 
-    [0.229,0.530],[0.229,0.730], #gerbong 3
-    [0.251,0.530],[0.251,0.730],
-    [0.324,0.530],[0.324,0.730],
-    [0.346,0.530],[0.346,0.730],
-
-    [0.439,0.530],[0.439,0.730], #gerbong 4
-    [0.461,0.530],[0.461,0.730],
-    [0.534,0.530],[0.534,0.730],
-    [0.556,0.530],[0.556,0.730],
-
-    [0.650,0.530],[0.650,0.730], #gerbong 5
-    [0.670,0.530],[0.670,0.730],
-    [0.744,0.530],[0.744,0.730],
-    [0.764,0.530],[0.764,0.730],
-
-    [0.229,0.270],[0.229,0.470], #gerbong 6
-    [0.251,0.270],[0.251,0.470],
-    [0.324,0.270],[0.324,0.470],
-    [0.346,0.270],[0.346,0.470],
-
-    [0.439,0.270],[0.439,0.470], #gerbong 7
-    [0.461,0.270],[0.461,0.470],
-    [0.534,0.270],[0.534,0.470],
-    [0.556,0.270],[0.556,0.470],
-
-    [0.650,0.270],[0.650,0.470], #gerbong 8
-    [0.670,0.270],[0.670,0.470],
-    [0.744,0.270],[0.744,0.470],
-    [0.764,0.270],[0.764,0.470],
-
-    [0.229,0.010],[0.229,0.205], #gerbong 9
-    [0.251,0.010],[0.251,0.205],
-    [0.324,0.010],[0.324,0.205],
-    [0.346,0.010],[0.346,0.205],
-
-    [0.439,0.010],[0.439,0.205], #gerbong 10
-    [0.461,0.010],[0.461,0.205],
-    [0.534,0.010],[0.534,0.205],
-    [0.556,0.010],[0.556,0.206],
-
-    [0.650,0.010],[0.650,0.205], #gerbong 11
-    [0.670,0.010],[0.670,0.205],
-    [0.744,0.010],[0.744,0.205],
-    [0.764,0.010],[0.764,0.205],
+    [0.200,0.530],[0.200,0.730], #gerbong 3
+    [0.220,0.530],[0.220,0.730],
+    [0.304,0.530],[0.304,0.730],
+    [0.326,0.530],[0.326,0.730],
 ]
 
 field_pos_large_right_to_left = [
@@ -200,46 +160,6 @@ field_pos_small_left_to_right = [
     [0.740,0.730],[0.740,0.530],
     [0.667,0.730],[0.667,0.530],
     [0.645,0.730],[0.645,0.530],
-
-    [0.552,0.730],[0.552,0.530], #gerbong 4
-    [0.530,0.730],[0.530,0.530],
-    [0.455,0.730],[0.455,0.530],
-    [0.433,0.730],[0.433,0.530],
-
-    [0.340,0.730],[0.340,0.530], #gerbong 5
-    [0.318,0.730],[0.318,0.530],
-    [0.245,0.730],[0.245,0.530],
-    [0.223,0.730],[0.223,0.530],
-
-    [0.762,0.470],[0.762,0.270], #gerbong 6
-    [0.740,0.470],[0.740,0.270],
-    [0.667,0.470],[0.667,0.270],
-    [0.645,0.470],[0.645,0.270],
-
-    [0.552,0.470],[0.552,0.270], #gerbong 7
-    [0.530,0.470],[0.530,0.270],
-    [0.455,0.470],[0.455,0.270],
-    [0.433,0.470],[0.433,0.270],
-
-    [0.340,0.470],[0.340,0.270], #gerbong 8
-    [0.318,0.470],[0.318,0.270],
-    [0.245,0.470],[0.245,0.270],
-    [0.223,0.470],[0.223,0.270],
-
-    [0.762,0.205],[0.762,0.010], #gerbong 9
-    [0.740,0.205],[0.740,0.010],
-    [0.667,0.205],[0.667,0.010],
-    [0.645,0.205],[0.645,0.010],
-
-    [0.552,0.205],[0.552,0.010], #gerbong 10
-    [0.530,0.205],[0.530,0.010],
-    [0.455,0.205],[0.455,0.010],
-    [0.433,0.205],[0.433,0.010],
-
-    [0.340,0.205],[0.340,0.010], #gerbong 11
-    [0.318,0.205],[0.318,0.010],
-    [0.245,0.205],[0.245,0.010],
-    [0.223,0.205],[0.223,0.010],
 ]
 
 field_pos_large_left_to_right = [
@@ -375,9 +295,8 @@ train_speed = 0.0
 
 train_type = 0 # feeder / small = 0, argo / large = 1 
 
-flag_autosave_data = False
-flag_autosave_graph = False
-graph_state = 0
+flag_autosave = False
+prev_flag_autosave = False
 
 class ScreenSplash(MDScreen):
     screen_manager = ObjectProperty(None)
@@ -420,13 +339,13 @@ class ScreenData(MDScreen):
 
         self.ids.layout_tables.add_widget(self.data_tables)
 
-        self.fig, self.ax = plt.subplots()
-        self.fig.tight_layout()
+        fig, ax = plt.subplots()
+        fig.tight_layout()
         
-        self.ax.set_xlabel("Data No.", fontsize=10)
-        self.ax.set_ylabel("Temp. [C]", fontsize=10)
+        ax.set_xlabel("Data No.", fontsize=10)
+        ax.set_ylabel("Temp. [C]", fontsize=10)
 
-        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
+        self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(fig))
         try:
             self.connect_to_plc()
             Clock.schedule_interval(self.read_plc, INTERVAL_DURATION_DATA)
@@ -535,9 +454,9 @@ class ScreenData(MDScreen):
 
             if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
                 try:
+                    Clock.unschedule(self.auto_load)
                     self.save_data()
                     self.reset_data()
-                    Clock.unschedule(self.auto_load)
 
                 except Exception as e:
                     print("An exception occurred:", e)
@@ -611,12 +530,13 @@ class ScreenData(MDScreen):
         global dir_left_to_right, dir_right_to_left
         global read_sensor_left_to_right, read_sensor_right_to_left
         global counting_wheel, counting_wheel_max
+        global flag_autosave, prev_flag_autosave
 
         numbers = np.arange(1,101)
-        # db_bearing_temps[counting_wheel] = arr_bearing_temps
+        db_bearing_temps[counting_wheel] = arr_bearing_temps
+
         # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
-        # # print(db_bearing_temps_trimmed)
-        # # print(db_bearing_temps_trimmed)
+        # print(db_bearing_temps_trimmed)
         # counting_wheel_max = db_bearing_temps_trimmed.size
 
         if (dir_right_to_left == True):
@@ -629,11 +549,10 @@ class ScreenData(MDScreen):
             if (counting_wheel < counting_wheel_max):
                 self.finding_bearings(counting_wheel)
                 counting_wheel += 1
-        
-        print(arr_calc_bearing_temps)
 
+            if (counting_wheel == counting_wheel_max):
+                flag_autosave = True
 
-        # if((dir_left_to_right and read_sensor_left_to_right) or (dir_right_to_left and read_sensor_right_to_left)): 
         numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
 
         try:
@@ -649,21 +568,22 @@ class ScreenData(MDScreen):
         global arr_calc_bearing_temps
 
         try:
-            self.fig, self.ax = plt.subplots()
-            self.fig.tight_layout()
+            fig, ax = plt.subplots()
+            fig.tight_layout()
 
             self.finding_bearings(bearing_num)
             arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
                      
-            self.ax.set_xlabel("n", fontsize=10)
-            self.ax.set_ylabel("Temp. [C]", fontsize=10)
-            self.ax.set_ylim(0, 100)
-            self.ax.set_xlim(0, arr_bearing_trimmed.size)
-            self.ax.plot(arr_bearing_trimmed)
-            self.ax.plot(np.zeros_like(arr_bearing_trimmed) + BEARING_TEMP_MIN, "--", color="gray")
+            ax.set_xlabel("n", fontsize=10)
+            ax.set_ylabel("Temp. [C]", fontsize=10)
+            ax.set_ylim(0, 100)
+            ax.set_xlim(0, arr_bearing_trimmed.size)
+            ax.plot(arr_bearing_trimmed)
+            ax.plot(np.zeros_like(arr_bearing_trimmed) + BEARING_TEMP_MIN, "--", color="gray")
 
             self.ids.layout_graph.clear_widgets()
-            self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(self.fig))
+            self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(fig))
+            fig.clf
         
         except Exception as e:
             print("An exception occurred:", e)
@@ -695,11 +615,10 @@ class ScreenData(MDScreen):
             ScreenDashboard.save_screen()
 
             name_file_now = datetime.now().strftime("\\data\\raw_%d_%m_%Y_%H_%M_%S.csv")
-            name_file_dashboard = datetime.now().strftime("data\\raw_%d_%m_%Y_%H_%M_%S.csv")
             cwd = os.getcwd()
-            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data\\'
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data'
             disk = cwd + name_file_now
-            disk_dashboard = cwd_dashboard + name_file_dashboard
+            disk_dashboard = cwd_dashboard + name_file_now
 
             header_text = "Roda 1"
             for i in range(2,101):
@@ -715,12 +634,10 @@ class ScreenData(MDScreen):
 
             # name initialization
             name_file_now = datetime.now().strftime("\\data\\calc_%d_%m_%Y_%H_%M_%S.csv")
-            name_file_dashboard = datetime.now().strftime("data\\calc_%d_%m_%Y_%H_%M_%S.csv")
             disk = cwd + name_file_now
-            disk_dashboard = cwd_dashboard + name_file_dashboard
+            disk_dashboard = cwd_dashboard + name_file_now
 
             calculated_data = np.vstack((arr_calc_bearing_temps, np.empty([2,100])))
-            print(calculated_data)
             
             # save calculated data to default folder  
             with open(disk,"wb") as f:
@@ -788,7 +705,8 @@ class ScreenDashboard(MDScreen):
             self.move_right_to_left()
 
         if (dir_right_to_left == False and dir_left_to_right == False):
-            self.standby()
+            self.standby()   
+
 
     def move_right_to_left(self):
         global field_pos_right_to_left
@@ -810,7 +728,7 @@ class ScreenDashboard(MDScreen):
 
         try:
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0, 99):
+            for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
@@ -883,11 +801,10 @@ class ScreenDashboard(MDScreen):
         try:
             # save screen shot to default folder
             name_file_now = datetime.now().strftime("\\screenshot\\%d_%m_%Y_%H_%M_%S.png")
-            name_file_dashboard = datetime.now().strftime("screenshot\\%d_%m_%Y_%H_%M_%S.png")
             cwd = os.getcwd()
-            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data\\'
+            cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data'
             disk = cwd + name_file_now
-            disk_dashboard = cwd_dashboard + name_file_dashboard
+            disk_dashboard = cwd_dashboard + name_file_now
 
             self.ids.layout_dashboard.export_to_png(disk)
             self.ids.layout_dashboard.export_to_png(disk_dashboard)
