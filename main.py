@@ -367,13 +367,17 @@ class ScreenData(MDScreen):
         global db_bearing_temps
         global arr_calc_bearing_temps
 
-        numbers = np.arange(1,101)       
-        db_bearing_temps = np.zeros([100, 100])
-        arr_calc_bearing_temps = np.zeros(100)
-        # numbered_db = np.round(np.vstack((numbers,db_bearing_temps.T)), 1)
-        numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
-        print(numbered_db)
-        self.data_tables.row_data = numbered_db.T.tolist()
+        try:
+            numbers = np.arange(1,101)       
+            db_bearing_temps = np.zeros([100, 100])
+            arr_calc_bearing_temps = np.zeros(100)
+            numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
+            self.data_tables.row_data = numbered_db.T.tolist()
+
+        except Exception as e:
+            print("An exception occurred:", e)
+            err_msg = "Error reseting data, " + str(e)
+            toast(err_msg)
 
     def open_data(self):
         global db_bearing_temps
@@ -405,10 +409,11 @@ class ScreenData(MDScreen):
             self.file_manager.close()
                    
         except Exception as e:
-            print("An exception occurred:", e)
-            toast('error open file')
             self.manager_open = False
             self.file_manager.close()
+            print("An exception occurred:", e)
+            err_msg = "Error opening file manager, " + str(e)
+            toast(err_msg)
 
     def connect_to_plc(self):
         global plc
@@ -453,14 +458,9 @@ class ScreenData(MDScreen):
                 Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_TABLE)
 
             if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
-                try:
-                    Clock.unschedule(self.auto_load)
-                    self.save_data()
-                    self.reset_data()
-
-                except Exception as e:
-                    print("An exception occurred:", e)
-                    toast("error save data")
+                Clock.unschedule(self.auto_load)
+                self.save_data()
+                self.reset_data()
             
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
 
@@ -477,10 +477,11 @@ class ScreenData(MDScreen):
             prev_dir_right_to_left = dir_right_to_left
             prev_dir_left_to_right = dir_left_to_right
             
-        except RuntimeError as e:
-            print(f"Error reading PLC data: {e}")
+        except Exception as e:
             Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
-            toast("PLC is disconnected")
+            print("An exception occurred:", e)
+            err_msg = "Error reading PLC data, " + str(e)
+            toast(err_msg)
 
     def finding_bearings(self, counting_wheel):
         global db_bearing_temps
@@ -488,7 +489,8 @@ class ScreenData(MDScreen):
         global calc_bearing_temps
         global arr_calc_bearing_temps  
 
-        arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
+        # arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
+        arr_bearing_temps = db_bearing_temps[counting_wheel]
         arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
         peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
 
@@ -513,13 +515,21 @@ class ScreenData(MDScreen):
 
         except Exception as e:
             print("An exception occurred:", e)
+            err_msg = "Error finding bearing temperature, " + str(e)
+            # toast(err_msg)
             
     def auto_load(self, dt):
         global counting_wheel
 
-        self.update_table()
-        self.ids.text_bearing_num.text = str(counting_wheel + 1)
-        self.update_bearing_num()
+        try:
+            self.update_table()
+            self.ids.text_bearing_num.text = str(counting_wheel + 1)
+            self.update_bearing_num()
+
+        except Exception as e:
+            print("An exception occurred:", e)
+            err_msg = "Error autoloading data, " + str(e)
+            toast(err_msg)
 
     def update_table(self):           
         global db_bearing_temps
@@ -560,6 +570,8 @@ class ScreenData(MDScreen):
         
         except Exception as e:
             print("An exception occurred:", e)
+            err_msg = "Error updating temperature table, " + str(e)
+            toast(err_msg)
 
     def update_graph(self, bearing_num = 0):           
         global db_bearing_temps
@@ -579,15 +591,16 @@ class ScreenData(MDScreen):
             ax.set_ylim(0, 100)
             ax.set_xlim(0, arr_bearing_trimmed.size)
             ax.plot(arr_bearing_trimmed)
+            # ax.plot(arr_bearing_temps)
             ax.plot(np.zeros_like(arr_bearing_trimmed) + BEARING_TEMP_MIN, "--", color="gray")
+            # ax.plot(np.zeros_like(arr_bearing_temps) + BEARING_TEMP_MIN, "--", color="gray")
 
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(fig))
-            fig.clf
         
         except Exception as e:
             print("An exception occurred:", e)
-            err_msg = str(e)
+            err_msg = "Error updating temperature graph, " + str(e)
             toast(err_msg)
     
     def update_bearing_num(self):
@@ -653,8 +666,9 @@ class ScreenData(MDScreen):
             toast("sucessfully save data")
 
         except Exception as e:
-            print("error saving data")
-            toast(f"error saving data {e}")
+            print("An exception occurred:", e)
+            err_msg = "Error saving data, " + str(e)
+            toast(err_msg)
 
     def screen_dashboard(self):
         self.screen_manager.current = 'screen_dashboard'
@@ -683,29 +697,35 @@ class ScreenDashboard(MDScreen):
         
         screenData = self.screen_manager.get_screen('screen_data')
 
-        self.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
-        screenData.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
+        try:
+            self.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
+            screenData.ids.lb_realtime_clock.text = str(datetime.now().strftime("%A, %d %B %Y %H:%M:%S"))
 
-        self.ids.lb_train_name.text = "Kereta: " + train_name
-        screenData.ids.lb_train_name.text = "Kereta: " + train_name
+            self.ids.lb_train_name.text = "Kereta: " + train_name
+            screenData.ids.lb_train_name.text = "Kereta: " + train_name
 
-        self.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
-        screenData.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
+            self.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
+            screenData.ids.lb_train_type.text = "Jenis Sarana: " + carriage_type
 
-        self.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
-        screenData.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
+            self.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
+            screenData.ids.lb_train_wheel.text = "Jumlah Roda: " + str(counting_wheel_max)
 
-        self.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
-        screenData.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
+            self.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
+            screenData.ids.lb_train_speed.text = "Kecepatan: " + f"{train_speed:10.2f}"
 
-        if (dir_left_to_right == True):
-            self.move_left_to_right()
-            
-        if (dir_right_to_left == True):
-            self.move_right_to_left()
+            if (dir_left_to_right == True):
+                self.move_left_to_right()
+                
+            if (dir_right_to_left == True):
+                self.move_right_to_left()
 
-        if (dir_right_to_left == False and dir_left_to_right == False):
-            self.standby()   
+            if (dir_right_to_left == False and dir_left_to_right == False):
+                self.standby()   
+        
+        except Exception as e:
+            print("An exception occurred:", e)
+            err_msg = "Error autoloading dashboard, " + str(e)
+            toast(err_msg)
 
 
     def move_right_to_left(self):
@@ -716,17 +736,17 @@ class ScreenDashboard(MDScreen):
 
         screenData = self.screen_manager.get_screen('screen_data')
 
-        if train_type == 1:
-            self.ids.background_image.source = 'asset/train_large_right_to_left.png'
-            train_name = "Argo"
-        else:
-            self.ids.background_image.source = 'asset/train_small_right_to_left.png'
-            train_name = "Feeder"
-
-        self.ids.lb_train_dir.text = "dari arah kanan ke kiri"
-        screenData.ids.lb_train_dir.text = "dari arah kanan ke kiri"
-
         try:
+            if train_type == 1:
+                self.ids.background_image.source = 'asset/train_large_right_to_left.png'
+                train_name = "Argo"
+            else:
+                self.ids.background_image.source = 'asset/train_small_right_to_left.png'
+                train_name = "Feeder"
+
+            self.ids.lb_train_dir.text = "dari arah kanan ke kiri"
+            screenData.ids.lb_train_dir.text = "dari arah kanan ke kiri"
+
             self.ids.layout_text_temps.clear_widgets()
             for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
@@ -741,7 +761,8 @@ class ScreenDashboard(MDScreen):
 
         except Exception as e:
             print("An exception occurred:", e)
-            toast('error open screen')      
+            err_msg = "Error displaying move right to left, " + str(e)
+            toast(err_msg)  
 
     def move_left_to_right(self):
         global field_pos_left_to_right
@@ -750,17 +771,17 @@ class ScreenDashboard(MDScreen):
 
         screenData = self.screen_manager.get_screen('screen_data')
 
-        if train_type == 1:
-            self.ids.background_image.source = 'asset/train_large_left_to_right.png'
-            train_name = "Argo"
-        else:
-            self.ids.background_image.source = 'asset/train_small_left_to_right.png'
-            train_name = "Feeder"
-
-        self.ids.lb_train_dir.text = "dari arah kiri ke kanan"
-        screenData.ids.lb_train_dir.text = "dari arah kiri ke kanan"
-
         try:
+            if train_type == 1:
+                self.ids.background_image.source = 'asset/train_large_left_to_right.png'
+                train_name = "Argo"
+            else:
+                self.ids.background_image.source = 'asset/train_small_left_to_right.png'
+                train_name = "Feeder"
+
+            self.ids.lb_train_dir.text = "dari arah kiri ke kanan"
+            screenData.ids.lb_train_dir.text = "dari arah kiri ke kanan"
+
             self.ids.layout_text_temps.clear_widgets()
             for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
@@ -775,27 +796,36 @@ class ScreenDashboard(MDScreen):
 
         except Exception as e:
             print("An exception occurred:", e)
-            toast('error open screen')   
+            err_msg = "Error displaying move right to left, " + str(e)
+            toast(err_msg)   
 
     def standby(self):
+
         screenData = self.screen_manager.get_screen('screen_data')
-        self.ids.background_image.source = 'asset/train_standby.png'
-        self.ids.layout_text_temps.clear_widgets()
 
-        self.ids.lb_train_name.text = "Standby"
-        screenData.ids.lb_train_name.text = "Standby"
+        try:
+            self.ids.background_image.source = 'asset/train_standby.png'
+            self.ids.layout_text_temps.clear_widgets()
 
-        self.ids.lb_train_type.text = "Tidak ada kereta melintas"
-        screenData.ids.lb_train_type.text = "Tidak ada kereta melintas"
+            self.ids.lb_train_name.text = "Standby"
+            screenData.ids.lb_train_name.text = "Standby"
 
-        self.ids.lb_train_wheel.text = ""
-        screenData.ids.lb_train_wheel.text = ""
+            self.ids.lb_train_type.text = "Tidak ada kereta melintas"
+            screenData.ids.lb_train_type.text = "Tidak ada kereta melintas"
 
-        self.ids.lb_train_speed.text = ""
-        screenData.ids.lb_train_speed.text = ""
+            self.ids.lb_train_wheel.text = ""
+            screenData.ids.lb_train_wheel.text = ""
 
-        self.ids.lb_train_dir.text = ""
-        screenData.ids.lb_train_dir.text = ""
+            self.ids.lb_train_speed.text = ""
+            screenData.ids.lb_train_speed.text = ""
+
+            self.ids.lb_train_dir.text = ""
+            screenData.ids.lb_train_dir.text = ""
+
+        except Exception as e:
+            print("An exception occurred:", e)
+            err_msg = str(e)
+            toast(err_msg)  
 
     def save_screen(self):
         try:
@@ -812,9 +842,10 @@ class ScreenDashboard(MDScreen):
             print("sucessfully save screenshot")
             toast("sucessfully save screenshot")
 
-        except:
-            print("error saving screenshot")
-            toast("error saving screenshot")
+        except Exception as e:
+            print("An exception occurred:", e)
+            err_msg = str(e)
+            toast(err_msg)
 
     def screen_dashboard(self):
         self.screen_manager.current = 'screen_dashboard'
