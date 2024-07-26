@@ -55,25 +55,25 @@ colors = {
 }
 
 field_pos_small_right_to_left = [
-    [0.252,0.790],[0.252,0.990], #lokomotif
-    [0.272,0.790],[0.272,0.990],
+    [0.251,0.790],[0.251,0.990], #lokomotif
+    [0.271,0.790],[0.271,0.990],
     [0.343,0.790],[0.343,0.990],
     [0.363,0.790],[0.363,0.990],
 
-    [0.440,0.790],[0.440,0.990], #gerbong 1
-    [0.460,0.790],[0.460,0.990],
-    [0.534,0.790],[0.534,0.990],
-    [0.554,0.790],[0.554,0.990],
+    [0.441,0.790],[0.441,0.990], #gerbong 1
+    [0.461,0.790],[0.461,0.990],
+    [0.533,0.790],[0.533,0.990],
+    [0.553,0.790],[0.553,0.990],
 
-    [0.645,0.790],[0.645,0.990], #gerbong 2
-    [0.665,0.790],[0.665,0.990],
-    [0.754,0.790],[0.754,0.990],
-    [0.774,0.790],[0.774,0.990],
+    [0.646,0.790],[0.646,0.990], #gerbong 2
+    [0.666,0.790],[0.666,0.990],
+    [0.738,0.790],[0.738,0.990],
+    [0.758,0.790],[0.758,0.990],
 
-    [0.200,0.530],[0.200,0.730], #gerbong 3
-    [0.220,0.530],[0.220,0.730],
-    [0.304,0.530],[0.304,0.730],
-    [0.326,0.530],[0.326,0.730],
+    [0.215,0.530],[0.215,0.730], #gerbong 3
+    [0.235,0.530],[0.235,0.730],
+    [0.307,0.530],[0.307,0.730],
+    [0.327,0.530],[0.327,0.730],
 ]
 
 field_pos_large_right_to_left = [
@@ -346,6 +346,7 @@ class ScreenData(MDScreen):
         ax.set_ylabel("Temp. [C]", fontsize=10)
 
         self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(fig))
+        plt.close('all')
         try:
             self.connect_to_plc()
             Clock.schedule_interval(self.read_plc, INTERVAL_DURATION_DATA)
@@ -452,15 +453,22 @@ class ScreenData(MDScreen):
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
             counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
 
-            train_type = 1 if counting_wheel_max > 16 else 0
+            if counting_wheel_max > 46 :
+                train_type = 2 
+            elif counting_wheel_max > 16 and counting_wheel_max <= 46 :
+                train_type = 1
+            else:
+                train_type = 0
 
             if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
-                Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_TABLE)
+                Clock.schedule_interval(self.auto_load_data, INTERVAL_DURATION_UPDATE_TABLE)
 
             if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
-                Clock.unschedule(self.auto_load)
+                Clock.unschedule(self.auto_load_data)
                 self.save_data()
                 self.reset_data()
+
+            print(dir_right_to_left, dir_left_to_right, prev_dir_right_to_left, prev_dir_left_to_right)
             
             DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
 
@@ -518,7 +526,7 @@ class ScreenData(MDScreen):
             err_msg = "Error finding bearing temperature, " + str(e)
             # toast(err_msg)
             
-    def auto_load(self, dt):
+    def auto_load_data(self, dt):
         global counting_wheel
 
         try:
@@ -597,6 +605,7 @@ class ScreenData(MDScreen):
 
             self.ids.layout_graph.clear_widgets()
             self.ids.layout_graph.add_widget(FigureCanvasKivyAgg(fig))
+            plt.close('all')
         
         except Exception as e:
             print("An exception occurred:", e)
@@ -688,9 +697,9 @@ class ScreenDashboard(MDScreen):
         
     def delayed_init(self, dt):
         self.standby()
-        Clock.schedule_interval(self.auto_load, INTERVAL_DURATION_UPDATE_DISPLAY)
+        Clock.schedule_interval(self.auto_load_dashboard, INTERVAL_DURATION_UPDATE_DISPLAY)
 
-    def auto_load(self, dt):
+    def auto_load_dashboard(self, dt):
         global dir_left_to_right, dir_right_to_left
         global train_name, carriage_type, train_speed
         global counting_wheel, counting_wheel_max
@@ -737,9 +746,12 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         try:
-            if train_type == 1:
-                self.ids.background_image.source = 'asset/train_large_right_to_left.png'
-                train_name = "Argo"
+            if train_type == 2:
+                self.ids.background_image.source = 'asset/train_large_right_to_left_11.png'
+                train_name = "Argo Parahyangan"
+            elif train_type == 1:
+                self.ids.background_image.source = 'asset/train_large_right_to_left_10.png'
+                train_name = "Argo Ciremai"
             else:
                 self.ids.background_image.source = 'asset/train_small_right_to_left.png'
                 train_name = "Feeder"
@@ -772,9 +784,12 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         try:
-            if train_type == 1:
-                self.ids.background_image.source = 'asset/train_large_left_to_right.png'
-                train_name = "Argo"
+            if train_type == 2:
+                self.ids.background_image.source = 'asset/train_large_left_to_right_11.png'
+                train_name = "Argo Parahyangan"
+            elif train_type == 1:
+                self.ids.background_image.source = 'asset/train_large_left_to_right_10.png'
+                train_name = "Argo Ciremai"
             else:
                 self.ids.background_image.source = 'asset/train_small_left_to_right.png'
                 train_name = "Feeder"
