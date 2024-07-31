@@ -466,7 +466,7 @@ class ScreenData(MDScreen):
             if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
                 Clock.schedule_interval(self.auto_load_data, INTERVAL_DURATION_UPDATE_TABLE)
 
-            if ((prev_dir_right_to_left or prev_dir_left_to_right) and not dir_left_to_right and not dir_right_to_left):
+            if ((prev_dir_right_to_left and not dir_right_to_left) or (prev_dir_left_to_right and not dir_left_to_right)):
                 Clock.unschedule(self.auto_load_data)
                 self.save_data()
                 self.reset_data()
