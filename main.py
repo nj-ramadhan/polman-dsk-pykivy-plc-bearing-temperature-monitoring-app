@@ -457,9 +457,11 @@ class ScreenData(MDScreen):
             counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
 
             if counting_wheel_max > 46 :
-                train_type = 2 
-            elif counting_wheel_max > 16 and counting_wheel_max <= 46 :
-                train_type = 1
+                train_type = 11
+            elif counting_wheel_max > 42 and counting_wheel_max <= 46 :
+                train_type = 10
+            elif counting_wheel_max > 16 and counting_wheel_max <= 42 :
+                train_type = 9
             else:
                 train_type = 0
 
@@ -761,11 +763,14 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         try:
-            if train_type == 2:
+            if train_type == 11:
                 self.ids.background_image.source = 'asset/train_large_right_to_left_11.png'
                 train_name = "Argo Parahyangan"
-            elif train_type == 1:
+            elif train_type == 10:
                 self.ids.background_image.source = 'asset/train_large_right_to_left_10.png'
+                train_name = "Argo Papandayan"
+            elif train_type == 9:
+                self.ids.background_image.source = 'asset/train_large_right_to_left_09.png'
                 train_name = "Argo Ciremai"
             else:
                 self.ids.background_image.source = 'asset/train_small_right_to_left.png'
@@ -800,11 +805,14 @@ class ScreenDashboard(MDScreen):
         screenData = self.screen_manager.get_screen('screen_data')
 
         try:
-            if train_type == 2:
+            if train_type == 11:
                 self.ids.background_image.source = 'asset/train_large_left_to_right_11.png'
                 train_name = "Argo Parahyangan"
-            elif train_type == 1:
+            elif train_type == 10:
                 self.ids.background_image.source = 'asset/train_large_left_to_right_10.png'
+                train_name = "Argo Papandayan"
+            elif train_type == 9:
+                self.ids.background_image.source = 'asset/train_large_left_to_right_09.png'
                 train_name = "Argo Ciremai"
             else:
                 self.ids.background_image.source = 'asset/train_small_left_to_right.png'
