@@ -228,16 +228,15 @@ field_pos_large_left_to_right = [
 
 DEBUG = False
 
-TEMP_OFFSET = 2.5412
-TEMP_GAIN = 5.0 * 1000.0 #channge from A to mA with gain
-
 BEARING_TEMP_MIN = 42.5
+TEMP_CALLIBRATION =  11.2
 
 # Define constants for PLC connection and database read
 PLC_IP = '192.168.0.2'
 RACK = 0
 SLOT = 1
 DB_NUMBER = 3
+DB_NUMBER_BKUP = 8
 
 DB_OFFSET_COUNTER = 0
 DB_OFFSET_TRAIN_NAME = 2
@@ -262,13 +261,14 @@ BYTES_TO_READ_M = 64
 BYTES_TO_READ_L = 400
 
 DELAY_BEFORE_READING_PLC = 7
+DELAY_BEFORE_SAVING_DATA = 180
 INTERVAL_DURATION_DATA = 0.05  # seconds
 INTERVAL_DURATION_UPDATE_TABLE = 0.5
 INTERVAL_DURATION_UPDATE_DISPLAY = 1.0
 REQUEST_TIME_OUT = 5.0
 
 ARRAY_SIZE_DATA = 100
-ARRAY_SIZE_WHEEL = 110
+ARRAY_SIZE_WHEEL = 100
 
 arr_bearing_temps_left_to_right = np.zeros(ARRAY_SIZE_DATA)
 arr_bearing_temps_right_to_left = np.zeros(ARRAY_SIZE_DATA)
@@ -371,7 +371,7 @@ class ScreenData(MDScreen):
         global arr_calc_bearing_temps, arr_calc_method
 
         try:
-            numbers = np.arange(1,ARRAY_SIZE_DATA + 1)       
+            numbers = np.arange(1,ARRAY_SIZE_WHEEL + 1)       
             db_bearing_temps = np.zeros([ARRAY_SIZE_WHEEL, ARRAY_SIZE_DATA])
             arr_calc_bearing_temps = np.zeros(ARRAY_SIZE_WHEEL)
             arr_calc_method = np.empty(ARRAY_SIZE_WHEEL, dtype='<U5')
@@ -379,7 +379,7 @@ class ScreenData(MDScreen):
             self.data_tables.row_data = numbered_db.T.tolist()
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error reseting data, ", e)
             err_msg = "Error reseting data, " + str(e)
             toast(err_msg)
 
@@ -404,10 +404,10 @@ class ScreenData(MDScreen):
             data_set = np.loadtxt(*args, delimiter=";", encoding=None)
             # print(data_set)
             db_bearing_temps = data_set.T
-            arr_bearing_temps = db_bearing_temps[counting_wheel]
+            # arr_bearing_temps = db_bearing_temps[counting_wheel]
 
             self.update_table()
-            self.update_graph()
+            # self.update_graph()
 
             self.manager_open = False
             self.file_manager.close()
@@ -415,7 +415,7 @@ class ScreenData(MDScreen):
         except Exception as e:
             self.manager_open = False
             self.file_manager.close()
-            print("An exception occurred:", e)
+            print("Error opening file manager, ", e)
             err_msg = "Error opening file manager, " + str(e)
             toast(err_msg)
 
@@ -432,29 +432,48 @@ class ScreenData(MDScreen):
         global dir_left_to_right, dir_right_to_left
         global prev_dir_left_to_right, prev_dir_right_to_left
         global read_sensor_left_to_right, read_sensor_right_to_left
-        global counting_wheel_max
+        global counting_wheel_max, counting_wheel
         global train_name, carriage_type, train_speed, train_type
 
         try:
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
+            DB_read_counter = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
+            DB_read_counter_bkup = plc.db_read(DB_NUMBER_BKUP,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
+            counting_wheel_max = snap7.util.get_int(DB_read_counter, 0)
+
+            if ((counting_wheel_max != 16) and (counting_wheel_max != 42) and (counting_wheel_max != 46) and (counting_wheel_max != 50)):
+                counting_wheel_max = snap7.util.get_int(DB_read_counter_bkup, 0)
+                DB_read_array_temp = plc.db_read(DB_NUMBER_BKUP,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
+                print("counting_wheel_max not standard")
+            else:
+                DB_read_array_temp = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
+
+            # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
             # train_name = snap7.util.get_string(DB_bytearray, 0)
 
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_TYPE,BYTES_TO_READ_M)
-            carriage_type = snap7.util.get_string(DB_bytearray, 0)
+            # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_TYPE,BYTES_TO_READ_M)
+            # carriage_type = snap7.util.get_string(DB_bytearray, 0)
 
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_SPEED,BYTES_TO_READ_S)
-            train_speed = snap7.util.get_real(DB_bytearray, 0)
+            DB_read_speed = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_SPEED,BYTES_TO_READ_S)
+            train_speed = snap7.util.get_real(DB_read_speed, 0)
 
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_DIR,BYTES_TO_READ_S)
-            dir_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 0)
-            dir_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
+            DB_read_dir = plc.db_read(DB_NUMBER,DB_OFFSET_DIR,BYTES_TO_READ_S)
+            dir_right_to_left = snap7.util.get_bool(DB_read_dir, 0, 0)
+            dir_left_to_right = snap7.util.get_bool(DB_read_dir, 0, 1)
 
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_SENSOR,BYTES_TO_READ_S)
-            read_sensor_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 0)
-            read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
-           
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
-            counting_wheel_max = snap7.util.get_int(DB_bytearray, 0)
+            if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
+                Clock.schedule_once(self.auto_save_data, DELAY_BEFORE_SAVING_DATA)
+                Clock.schedule_interval(self.auto_load_data, INTERVAL_DURATION_UPDATE_TABLE)
+
+            if ((prev_dir_right_to_left and not dir_right_to_left) or (prev_dir_left_to_right and not dir_left_to_right)):
+                Clock.unschedule(self.auto_load_data)
+                self.reset_data()
+
+            # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_SENSOR,BYTES_TO_READ_S)
+            # read_sensor_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 0)
+            # read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
+
+            if counting_wheel_max >= 50 :
+                counting_wheel_max = 50
 
             if counting_wheel_max > 46 :
                 train_type = 11
@@ -465,18 +484,14 @@ class ScreenData(MDScreen):
             else:
                 train_type = 0
 
-            if ((dir_right_to_left or dir_left_to_right) and not prev_dir_right_to_left and not prev_dir_left_to_right):
-                Clock.schedule_interval(self.auto_load_data, INTERVAL_DURATION_UPDATE_TABLE)
-
-            if ((prev_dir_right_to_left and not dir_right_to_left) or (prev_dir_left_to_right and not dir_left_to_right)):
-                Clock.unschedule(self.auto_load_data)
-                self.save_data()
-                self.reset_data()
             
-            DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
+            # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
 
             for i in range(0, 49):
-                arr_bearing_temps[i] = snap7.util.get_real(DB_bytearray, i * 4)
+                arr_bearing_temps[i] = snap7.util.get_real(DB_read_array_temp, i * 4)
+                if (arr_bearing_temps[i] != 0.0):
+                    arr_bearing_temps[i] += TEMP_CALLIBRATION
+                # arr_bearing_temps[i] = snap7.util.get_real(DB_bytearray, i * 4)
             # if (dir_left_to_right):
             if (dir_left_to_right == True):
                 arr_bearing_temps_left_to_right = arr_bearing_temps
@@ -493,7 +508,7 @@ class ScreenData(MDScreen):
             
         except Exception as e:
             Clock.schedule_interval(self.auto_reconnect, REQUEST_TIME_OUT)
-            print("An exception occurred:", e)
+            print("Error reading PLC data, ", e)
             err_msg = "Error reading PLC data, " + str(e)
             toast(err_msg)
 
@@ -505,7 +520,7 @@ class ScreenData(MDScreen):
 
         # arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
         # arr_bearing_temps = db_bearing_temps[counting_wheel]
-        arr_bearing_temps = db_bearing_temps[counting_wheel *2]
+        arr_bearing_temps = db_bearing_temps[counting_wheel * 2]
         arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
         peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
 
@@ -532,20 +547,19 @@ class ScreenData(MDScreen):
             toast(f"Temperatur Bearing No.{counting_wheel + 1} Hasil Kalkulasi adalah {np.round(calc_bearing_temps,2)}")
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error finding bearing temperature, ", e)
             err_msg = "Error finding bearing temperature, " + str(e)
             # toast(err_msg)
             
     def auto_load_data(self, dt):
         global counting_wheel
-
         try:
-            self.update_table()
             self.ids.text_bearing_num.text = str(counting_wheel + 1)
-            self.update_bearing_num()
+            self.update_table()
+            # self.update_bearing_num()
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error autoloading data, ", e)
             err_msg = "Error autoloading data, " + str(e)
             toast(err_msg)
 
@@ -562,15 +576,15 @@ class ScreenData(MDScreen):
 
         numbers = np.arange(1, ARRAY_SIZE_WHEEL + 1)
         # db_bearing_temps[counting_wheel] = arr_bearing_temps
-        db_bearing_temps[counting_wheel *2] = arr_bearing_temps
+        db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
 
         # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
         # print(db_bearing_temps_trimmed)
         # counting_wheel_max = db_bearing_temps_trimmed.size
 
         if (dir_right_to_left == True):
-            arr_calc_bearing_temps[(counting_wheel - 1) *2] = calc_bearing_temps
-            arr_calc_method[(counting_wheel - 1) *2] = calc_method
+            arr_calc_bearing_temps[(counting_wheel - 1) * 2] = calc_bearing_temps
+            arr_calc_method[(counting_wheel - 1) * 2] = calc_method
 
         if (dir_left_to_right == True):
             arr_calc_bearing_temps[((counting_wheel - 1) * 2) + 1] = calc_bearing_temps
@@ -590,7 +604,7 @@ class ScreenData(MDScreen):
             self.data_tables.row_data = numbered_db.T.tolist()
         
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error updating temperature table, ", e)
             err_msg = "Error updating temperature table, " + str(e)
             toast(err_msg)
 
@@ -603,6 +617,7 @@ class ScreenData(MDScreen):
             fig.tight_layout()
 
             self.finding_bearings(bearing_num)
+            arr_bearing_temps = db_bearing_temps[bearing_num * 2]
             arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
                      
             ax.set_xlabel("n", fontsize=10)
@@ -619,12 +634,17 @@ class ScreenData(MDScreen):
             plt.close('all')
         
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error updating temperature graph, ", e)
             err_msg = "Error updating temperature graph, " + str(e)
             toast(err_msg)
     
     def update_bearing_num(self):
-        self.update_graph(int(self.ids.text_bearing_num.text) - 1)
+        try:
+            self.update_graph(int(self.ids.text_bearing_num.text) - 1)
+        except Exception as e:
+            print("Error update graph, ", e)
+            err_msg = "Error update graph, " + str(e)
+            toast(err_msg)
         
     def sort_on_num(self, data):
         try:
@@ -637,6 +657,10 @@ class ScreenData(MDScreen):
         except:
             toast("Error sorting data")
 
+    def auto_save_data(self, dt):
+        self.save_data()
+
+
     def save_data(self):
         global db_bearing_temps
         global arr_bearing_temps
@@ -648,7 +672,7 @@ class ScreenData(MDScreen):
             # name initialization
             ScreenDashboard.save_screen()
 
-            name_file_now = datetime.now().strftime("\\data\\raw_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_now = datetime.now().strftime("\\data\\raw_%Y_%m_%d_%H_%M_%S.csv")
             cwd = os.getcwd()
             cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data'
             disk = cwd + name_file_now
@@ -667,7 +691,7 @@ class ScreenData(MDScreen):
                 np.savetxt(f, db_bearing_temps.T, fmt="%.2f",delimiter=";",header=header_text)
 
             # name initialization
-            name_file_now = datetime.now().strftime("\\data\\calc_%d_%m_%Y_%H_%M_%S.csv")
+            name_file_now = datetime.now().strftime("\\data\\calc_%Y_%m_%d_%H_%M_%S.csv")
             disk = cwd + name_file_now
             disk_dashboard = cwd_dashboard + name_file_now
 
@@ -691,7 +715,7 @@ class ScreenData(MDScreen):
             toast("sucessfully save data")
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error saving data, ", e)
             err_msg = "Error saving data, " + str(e)
             toast(err_msg)
 
@@ -748,7 +772,7 @@ class ScreenDashboard(MDScreen):
                 self.standby()   
         
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error autoloading dashboard, ", e)
             err_msg = "Error autoloading dashboard, " + str(e)
             toast(err_msg)
 
@@ -768,10 +792,10 @@ class ScreenDashboard(MDScreen):
                 train_name = "Argo Parahyangan"
             elif train_type == 10:
                 self.ids.background_image.source = 'asset/train_large_right_to_left_10.png'
-                train_name = "Argo Papandayan"
+                train_name = "Pangandaran / Ciremai"
             elif train_type == 9:
                 self.ids.background_image.source = 'asset/train_large_right_to_left_09.png'
-                train_name = "Argo Ciremai"
+                train_name = "Serayu"
             else:
                 self.ids.background_image.source = 'asset/train_small_right_to_left.png'
                 train_name = "Feeder"
@@ -792,7 +816,7 @@ class ScreenDashboard(MDScreen):
                 self.ids.layout_text_temps.add_widget(field)
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error displaying move right to left, ", e)
             err_msg = "Error displaying move right to left, " + str(e)
             toast(err_msg)  
 
@@ -834,7 +858,7 @@ class ScreenDashboard(MDScreen):
                 self.ids.layout_text_temps.add_widget(field)
 
         except Exception as e:
-            print("An exception occurred:", e)
+            print("Error displaying move right to left, ", e)
             err_msg = "Error displaying move right to left, " + str(e)
             toast(err_msg)   
 
@@ -862,14 +886,14 @@ class ScreenDashboard(MDScreen):
             screenData.ids.lb_train_dir.text = ""
 
         except Exception as e:
-            print("An exception occurred:", e)
-            err_msg = str(e)
+            print("Error displaying standby dashboard, ", e)
+            err_msg = "Error displaying standby dashboard, "+ str(e)
             toast(err_msg)  
 
     def save_screen(self):
         try:
             # save screen shot to default folder
-            name_file_now = datetime.now().strftime("\\screenshot\\%d_%m_%Y_%H_%M_%S.png")
+            name_file_now = datetime.now().strftime("\\screenshot\\ss_%Y_%m_%d_%H_%M_%S.png")
             cwd = os.getcwd()
             cwd_dashboard = 'C:\\Users\\khout\\OneDrive\\Desktop\\history_data'
             disk = cwd + name_file_now
@@ -882,8 +906,8 @@ class ScreenDashboard(MDScreen):
             toast("sucessfully save screenshot")
 
         except Exception as e:
-            print("An exception occurred:", e)
-            err_msg = str(e)
+            print("Error saving screen, ", e)
+            err_msg ="Error saving screen, " + str(e)
             toast(err_msg)
 
     def screen_dashboard(self):
