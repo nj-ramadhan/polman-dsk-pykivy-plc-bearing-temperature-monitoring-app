@@ -560,7 +560,7 @@ class ScreenData(MDScreen):
         global counting_wheel, counting_wheel_max
         global flag_autosave, prev_flag_autosave
 
-        numbers = np.arange(1, ARRAY_SIZE_DATA + 1)
+        numbers = np.arange(1, ARRAY_SIZE_WHEEL + 1)
         # db_bearing_temps[counting_wheel] = arr_bearing_temps
         db_bearing_temps[counting_wheel *2] = arr_bearing_temps
 
@@ -786,8 +786,8 @@ class ScreenDashboard(MDScreen):
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 1 or train_type == 2 else (field_pos_small_right_to_left[i][0]),
-                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 1 or train_type == 2 else (field_pos_small_right_to_left[i][1])}
+                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][0]),
+                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
@@ -828,8 +828,8 @@ class ScreenDashboard(MDScreen):
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 1 or train_type == 2 else (field_pos_small_right_to_left[i][0]),
-                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 1 or train_type == 2 else (field_pos_small_right_to_left[i][1])}
+                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][0]),
+                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
