@@ -237,6 +237,7 @@ RACK = 0
 SLOT = 1
 DB_NUMBER = 3
 DB_NUMBER_BKUP = 8
+DB_NUMBER_BKUP_2 = 26
 
 DB_OFFSET_COUNTER = 0
 DB_OFFSET_TRAIN_NAME = 2
@@ -367,12 +368,17 @@ class ScreenData(MDScreen):
             toast("PLC is disconnected, try reconnecting..")
 
     def reset_data(self):
-        global db_bearing_temps
+        global db_bearing_temps, arr_bearing_temps
         global arr_calc_bearing_temps, arr_calc_method
+        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
 
         try:
+            arr_bearing_temps_left_to_right = np.zeros(ARRAY_SIZE_DATA)
+            arr_bearing_temps_right_to_left = np.zeros(ARRAY_SIZE_DATA)
+
             numbers = np.arange(1,ARRAY_SIZE_WHEEL + 1)       
             db_bearing_temps = np.zeros([ARRAY_SIZE_WHEEL, ARRAY_SIZE_DATA])
+            arr_bearing_temps = np.zeros(ARRAY_SIZE_DATA)
             arr_calc_bearing_temps = np.zeros(ARRAY_SIZE_WHEEL)
             arr_calc_method = np.empty(ARRAY_SIZE_WHEEL, dtype='<U5')
             numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
@@ -438,16 +444,19 @@ class ScreenData(MDScreen):
         try:
             DB_read_counter = plc.db_read(DB_NUMBER,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
             DB_read_counter_bkup = plc.db_read(DB_NUMBER_BKUP,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
-            plc_read_counting_wheel = snap7.util.get_int(DB_read_counter, 0)
+            DB_read_counter_bkup_2 = plc.db_read(DB_NUMBER_BKUP_2,DB_OFFSET_COUNTER,BYTES_TO_READ_S)
 
-            if ((plc_read_counting_wheel != 16) and (plc_read_counting_wheel != 42) and (plc_read_counting_wheel != 46) and (plc_read_counting_wheel != 50)):
-                plc_read_counting_wheel = snap7.util.get_int(DB_read_counter_bkup, 0)
-                DB_read_array_temp = plc.db_read(DB_NUMBER_BKUP,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
-                print("counting_wheel_max not standard")
+            counting_wheel_max = snap7.util.get_int(DB_read_counter, 0)
+            if ((counting_wheel_max != 16) and (counting_wheel_max != 42) and (counting_wheel_max != 46) and (counting_wheel_max != 50)):
+                counting_wheel_max = snap7.util.get_int(DB_read_counter_bkup, 0)
+                if ((counting_wheel_max != 16) and (counting_wheel_max != 42) and (counting_wheel_max != 46) and (counting_wheel_max != 50)):
+                    counting_wheel_max = snap7.util.get_int(DB_read_counter_bkup_2, 0)
+                    DB_read_array_temp = plc.db_read(DB_NUMBER_BKUP_2,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
+                else:
+                    DB_read_array_temp = plc.db_read(DB_NUMBER_BKUP,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
             else:
                 DB_read_array_temp = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
 
-            counting_wheel_max = 2 * plc_read_counting_wheel
             # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TRAIN_NAME,BYTES_TO_READ_M)
             # train_name = snap7.util.get_string(DB_bytearray, 0)
 
@@ -473,25 +482,25 @@ class ScreenData(MDScreen):
             # read_sensor_right_to_left = snap7.util.get_bool(DB_bytearray, 0, 0)
             # read_sensor_left_to_right = snap7.util.get_bool(DB_bytearray, 0, 1)
 
-            if counting_wheel_max >= 100 :
-                counting_wheel_max = 100
+            if counting_wheel_max >= 50 :
+                counting_wheel_max = 50
 
-            if counting_wheel_max > 92 :
+            if counting_wheel_max > 46 :
                 train_type = 11
-            elif counting_wheel_max > 84 and counting_wheel_max <= 92 :
+            elif counting_wheel_max > 42 and counting_wheel_max <= 46 :
                 train_type = 10
-            elif counting_wheel_max > 32 and counting_wheel_max <= 84 :
+            elif counting_wheel_max > 16 and counting_wheel_max <= 42 :
                 train_type = 9
             else:
                 train_type = 0
 
             
             # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
-
-            for i in range(0, 49):
-                arr_bearing_temps[i] = snap7.util.get_real(DB_read_array_temp, i * 4)
-                if (arr_bearing_temps[i] != 0.0):
-                    arr_bearing_temps[i] += TEMP_CALLIBRATION
+            if (dir_right_to_left or dir_left_to_right):
+                for i in range(0, 49):
+                    arr_bearing_temps[i] = snap7.util.get_real(DB_read_array_temp, i * 4)
+                    if (arr_bearing_temps[i] != 0.0):
+                        arr_bearing_temps[i] += TEMP_CALLIBRATION
                 # arr_bearing_temps[i] = snap7.util.get_real(DB_bytearray, i * 4)
             # if (dir_left_to_right):
             if (dir_left_to_right == True):
@@ -521,7 +530,7 @@ class ScreenData(MDScreen):
 
         # arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
         # arr_bearing_temps = db_bearing_temps[counting_wheel]
-        arr_bearing_temps = db_bearing_temps[counting_wheel]
+        arr_bearing_temps = db_bearing_temps[counting_wheel * 2]
         arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
         peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
 
@@ -577,20 +586,19 @@ class ScreenData(MDScreen):
 
         numbers = np.arange(1, ARRAY_SIZE_WHEEL + 1)
         # db_bearing_temps[counting_wheel] = arr_bearing_temps
-        # db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
-        arr_bearing_temps = db_bearing_temps[counting_wheel]
+        db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
 
         # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
         # print(db_bearing_temps_trimmed)
         # counting_wheel_max = db_bearing_temps_trimmed.size
 
         if (dir_right_to_left == True):
-            arr_calc_bearing_temps[(counting_wheel - 1)] = calc_bearing_temps
-            arr_calc_method[(counting_wheel - 1)] = calc_method
+            arr_calc_bearing_temps[(counting_wheel - 1) * 2] = calc_bearing_temps
+            arr_calc_method[(counting_wheel - 1) * 2] = calc_method
 
         if (dir_left_to_right == True):
-            arr_calc_bearing_temps[((counting_wheel - 1)) + 1] = calc_bearing_temps
-            arr_calc_method[((counting_wheel - 1)) + 1] = calc_method
+            arr_calc_bearing_temps[((counting_wheel - 1) * 2) + 1] = calc_bearing_temps
+            arr_calc_method[((counting_wheel - 1) * 2) + 1] = calc_method
 
         if (dir_left_to_right == True or dir_right_to_left == True):
             if (counting_wheel < counting_wheel_max):
@@ -619,7 +627,7 @@ class ScreenData(MDScreen):
             fig.tight_layout()
 
             self.finding_bearings(bearing_num)
-            arr_bearing_temps = db_bearing_temps[bearing_num]
+            arr_bearing_temps = db_bearing_temps[bearing_num * 2]
             arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
                      
             ax.set_xlabel("n", fontsize=10)
@@ -806,7 +814,7 @@ class ScreenDashboard(MDScreen):
             screenData.ids.lb_train_dir.text = "dari arah kanan ke kiri"
 
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0, counting_wheel_max):
+            for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
@@ -848,7 +856,7 @@ class ScreenDashboard(MDScreen):
             screenData.ids.lb_train_dir.text = "dari arah kiri ke kanan"
 
             self.ids.layout_text_temps.clear_widgets()
-            for i in range(0, counting_wheel_max):
+            for i in range(0, 2 * counting_wheel_max):
                 field = MDLabel(id=f'T_{i+1}', 
                                 #text=f'{i}', -> Untuk Menampilkan Posisi Data
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
