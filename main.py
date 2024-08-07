@@ -371,8 +371,10 @@ class ScreenData(MDScreen):
         global db_bearing_temps, arr_bearing_temps
         global arr_calc_bearing_temps, arr_calc_method
         global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
+        global counting_wheel
 
         try:
+            counting_wheel = 0
             arr_bearing_temps_left_to_right = np.zeros(ARRAY_SIZE_DATA)
             arr_bearing_temps_right_to_left = np.zeros(ARRAY_SIZE_DATA)
 
@@ -502,6 +504,7 @@ class ScreenData(MDScreen):
                     if (arr_bearing_temps[i] != 0.0):
                         arr_bearing_temps[i] += TEMP_CALLIBRATION
                 # arr_bearing_temps[i] = snap7.util.get_real(DB_bytearray, i * 4)
+                db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
             # if (dir_left_to_right):
             if (dir_left_to_right == True):
                 arr_bearing_temps_left_to_right = arr_bearing_temps
@@ -586,7 +589,7 @@ class ScreenData(MDScreen):
 
         numbers = np.arange(1, ARRAY_SIZE_WHEEL + 1)
         # db_bearing_temps[counting_wheel] = arr_bearing_temps
-        db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
+        # db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
 
         # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
         # print(db_bearing_temps_trimmed)
