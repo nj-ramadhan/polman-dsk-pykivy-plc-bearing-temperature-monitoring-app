@@ -296,10 +296,7 @@ train_name = ""
 carriage_type = ""
 train_speed = 0.0
 
-train_type = 0 # feeder / small = 0, argo / large = 1 
-
-flag_autosave = False
-prev_flag_autosave = False
+train_type = 0 # feeder / small = 0, argo / large = 9, 10, 11 depends on wheel numbers 
 
 class ScreenSplash(MDScreen):
     screen_manager = ObjectProperty(None)
@@ -392,9 +389,6 @@ class ScreenData(MDScreen):
             toast(err_msg)
 
     def open_data(self):
-        global db_bearing_temps
-        global arr_bearing_temps
-        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
         self.file_manager.show(os.path.expanduser(os.getcwd() + "\data"))  # output manager to the screen
         self.manager_open = True
 
@@ -406,16 +400,13 @@ class ScreenData(MDScreen):
 
     def exit_manager(self, *args):
         global db_bearing_temps
-        global arr_bearing_temps
+
         try: 
             toast("opening data")
             data_set = np.loadtxt(*args, delimiter=";", encoding=None)
-            # print(data_set)
             db_bearing_temps = data_set.T
-            # arr_bearing_temps = db_bearing_temps[counting_wheel]
 
             self.update_table()
-            # self.update_graph()
 
             self.manager_open = False
             self.file_manager.close()
@@ -496,7 +487,6 @@ class ScreenData(MDScreen):
             else:
                 train_type = 0
 
-            
             # DB_bytearray = plc.db_read(DB_NUMBER,DB_OFFSET_TEMPERATURE_BEARING[counting_wheel],BYTES_TO_READ_L)
             if (dir_right_to_left or dir_left_to_right):
                 for i in range(0, 49):
@@ -527,14 +517,11 @@ class ScreenData(MDScreen):
 
     def finding_bearings(self, counting_wheel):
         global db_bearing_temps
-        global arr_bearing_temps
         global calc_bearing_temps, calc_method
         global arr_calc_bearing_temps, arr_calc_method
 
-        # arr_bearing_temps = db_bearing_temps[counting_wheel][db_bearing_temps[counting_wheel] != np.array(None)]
-        # arr_bearing_temps = db_bearing_temps[counting_wheel]
-        arr_bearing_temps = db_bearing_temps[counting_wheel * 2]
-        arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
+        arr_bearing_data = db_bearing_temps[counting_wheel * 2]
+        arr_bearing_trimmed = np.trim_zeros(arr_bearing_data)
         peaks, _ = find_peaks(arr_bearing_temps, height = BEARING_TEMP_MIN)
 
         try:
@@ -567,7 +554,7 @@ class ScreenData(MDScreen):
     def auto_load_data(self, dt):
         global counting_wheel
         try:
-            self.ids.text_bearing_num.text = str(counting_wheel + 1)
+            self.ids.text_bearing_num.text = str((counting_wheel * 2) + 1)
             self.update_table()
             # self.update_bearing_num()
 
@@ -576,40 +563,28 @@ class ScreenData(MDScreen):
             err_msg = "Error autoloading data, " + str(e)
             toast(err_msg)
 
-    def update_table(self):           
-        global db_bearing_temps
-        global arr_bearing_temps
+    def update_table(self):          
         global calc_bearing_temps, calc_method
-        global arr_calc_bearing_temps, arr_calc_method        
-        global arr_bearing_temps_left_to_right, arr_bearing_temps_right_to_left
+        global arr_calc_bearing_temps, arr_calc_method
         global dir_left_to_right, dir_right_to_left
-        global read_sensor_left_to_right, read_sensor_right_to_left
         global counting_wheel, counting_wheel_max
-        global flag_autosave, prev_flag_autosave
 
         numbers = np.arange(1, ARRAY_SIZE_WHEEL + 1)
-        # db_bearing_temps[counting_wheel] = arr_bearing_temps
-        # db_bearing_temps[counting_wheel * 2] = arr_bearing_temps
-
-        # db_bearing_temps_trimmed = np.trim_zeros(db_bearing_temps.T[0])
-        # print(db_bearing_temps_trimmed)
-        # counting_wheel_max = db_bearing_temps_trimmed.size
-
-        if (dir_right_to_left == True):
-            arr_calc_bearing_temps[(counting_wheel - 1) * 2] = calc_bearing_temps
-            arr_calc_method[(counting_wheel - 1) * 2] = calc_method
-
-        if (dir_left_to_right == True):
-            arr_calc_bearing_temps[((counting_wheel - 1) * 2) + 1] = calc_bearing_temps
-            arr_calc_method[((counting_wheel - 1) * 2) + 1] = calc_method
-
         if (dir_left_to_right == True or dir_right_to_left == True):
             if (counting_wheel < counting_wheel_max):
                 self.finding_bearings(counting_wheel)
-                counting_wheel += 1
+        
+        if (dir_right_to_left == True):
+            arr_calc_bearing_temps[(counting_wheel) * 2] = calc_bearing_temps
+            arr_calc_method[(counting_wheel) * 2] = calc_method
 
-            if (counting_wheel == counting_wheel_max):
-                flag_autosave = True
+        if (dir_left_to_right == True):
+            arr_calc_bearing_temps[((counting_wheel) * 2) + 1] = calc_bearing_temps
+            arr_calc_method[((counting_wheel) * 2) + 1] = calc_method
+
+        if (dir_left_to_right == True or dir_right_to_left == True):
+            if (counting_wheel < counting_wheel_max - 1):
+                counting_wheel += 1
 
         numbered_db = np.vstack((numbers,np.round(db_bearing_temps.T, 1)))
 
@@ -623,15 +598,16 @@ class ScreenData(MDScreen):
 
     def update_graph(self, bearing_num = 0):           
         global db_bearing_temps
-        global arr_bearing_temps
 
         try:
             fig, ax = plt.subplots()
             fig.tight_layout()
 
-            self.finding_bearings(bearing_num)
-            arr_bearing_temps = db_bearing_temps[bearing_num * 2]
-            arr_bearing_trimmed = np.trim_zeros(arr_bearing_temps)
+            mod = int(bearing_num % 2)
+            if (mod == 0):
+                self.finding_bearings(int(bearing_num / 2))
+            arr_bearing_data = db_bearing_temps[bearing_num]
+            arr_bearing_trimmed = np.trim_zeros(arr_bearing_data)
                      
             ax.set_xlabel("n", fontsize=10)
             ax.set_ylabel("Temp. [C]", fontsize=10)
@@ -676,7 +652,6 @@ class ScreenData(MDScreen):
 
     def save_data(self):
         global db_bearing_temps
-        global arr_bearing_temps
         global arr_calc_bearing_temps, arr_calc_method
 
         ScreenDashboard = self.screen_manager.get_screen('screen_dashboard')
@@ -707,10 +682,11 @@ class ScreenData(MDScreen):
             name_file_now = datetime.now().strftime("\\data\\calc_%Y_%m_%d_%H_%M_%S.csv")
             disk = cwd + name_file_now
             disk_dashboard = cwd_dashboard + name_file_now
+            arr_calc_bearing_temps_str = np.array(["%.2f" % temp for temp in arr_calc_bearing_temps.reshape(arr_calc_bearing_temps.size)])
+            arr_calc_bearing_temps_str = arr_calc_bearing_temps_str.reshape(arr_calc_bearing_temps.shape)
 
-            # calculated_data = np.vstack((arr_calc_bearing_temps, np.empty([1,100])))
-            # calculated_data = np.vstack((arr_calc_bearing_temps, arr_calc_bearing_temps))
-            calculated_data = np.vstack((arr_calc_bearing_temps, arr_calc_method))
+            # calculated_data = np.vstack((arr_calc_bearing_temps, arr_calc_method))
+            calculated_data = np.vstack((arr_calc_bearing_temps_str, arr_calc_method))
             
             # save calculated data to default folder  
             with open(disk,"wb") as f:
@@ -722,8 +698,7 @@ class ScreenData(MDScreen):
                 # np.savetxt(f, calculated_data, fmt="%.2f",delimiter=";",header=header_text)
                 np.savetxt(f, calculated_data, fmt="%s", delimiter=";",header=header_text)
 
-            # save screenshot
-
+            # save data
             print("sucessfully save data")
             toast("sucessfully save data")
 
