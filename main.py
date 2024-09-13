@@ -840,8 +840,8 @@ class ScreenDashboard(MDScreen):
                                 text= f'{np.round(arr_calc_bearing_temps[i],1)}', #-> Untuk Menampilkan data suhu bearing
                                 theme_text_color= 'Primary' if (arr_calc_bearing_temps[i] <= BEARING_TEMP_MIN) else 'Error' ,
                                 font_style= 'Caption',
-                                pos_hint= {'center_x': (field_pos_large_right_to_left[i][0]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][0]),
-                                           'center_y': (field_pos_large_right_to_left[i][1]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_right_to_left[i][1])}
+                                pos_hint= {'center_x': (field_pos_large_left_to_right[i][0]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_left_to_right[i][0]),
+                                           'center_y': (field_pos_large_left_to_right[i][1]) if train_type == 11 or train_type == 10 or train_type == 9 else (field_pos_small_left_to_right[i][1])}
                 )
                 self.ids.layout_text_temps.add_widget(field)
 
